@@ -154,8 +154,8 @@
         let point = curD * 2;
         clearInterval(timer);
 
-        let resHTML = isRight ? `<span style='color:green'>ถูกต้อง! +${point}</span>` : `<span style='color:red'>ผิดครับ -${point}</span>`;
-        resHTML += `<div class="thai-read">คำอ่าน: ${thaiRead(ans)}</div>`;
+        let resHTML = isRight ? `<span style='color:green'>ถูกต้องนะคร๊าบบ! +${point}</span>` : `<span style='color:red'>ผิดครับ งัว -${point}</span>`;
+        resHTML += `<div class="thai-read">คำตอบคือ: ${thaiRead(ans)}</div>`;
         document.getElementById('result-text').innerHTML = resHTML;
 
         if(isRight) totalScore += point;
