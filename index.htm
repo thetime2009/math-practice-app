@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>คณิตศาสตร์เรียลไทม์</title>
+    <title>คณิตศาสตร์ - ระบบเสถียร 100%</title>
     <link href="https://googleapis.com" rel="stylesheet">
     <script src="https://jsdelivr.net"></script>
     <style>
         :root { --primary: #3498db; --success: #2ecc71; --error: #e74c3c; --carry: #fffde7; }
         body { font-family: 'Sarabun', sans-serif; background-color: #f0f4f8; display: flex; justify-content: center; padding: 20px; }
         .app-card { background: white; padding: 30px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 650px; }
-        .difficulty-zones { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
-        .btn-mode { padding: 10px 15px; border: 2px solid var(--primary); background: white; color: var(--primary); border-radius: 12px; cursor: pointer; font-weight: bold; }
+        .difficulty-zones { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; }
+        .btn-mode { padding: 10px 12px; border: 2px solid var(--primary); background: white; color: var(--primary); border-radius: 12px; cursor: pointer; font-weight: bold; flex: 1; }
         .btn-mode.active { background: var(--primary); color: white; }
         .stats { display: flex; justify-content: space-around; margin-bottom: 10px; font-size: 1.4rem; font-weight: bold; color: #2c3e50; background: #eef2f7; padding: 15px; border-radius: 15px; border: 2px solid #d1d9e6; }
         #score-display { color: #f39c12; font-size: 1.8rem; }
@@ -23,10 +23,10 @@
         .answer-row { border-top: 4px solid #333; margin-top: 10px; padding-top: 10px; }
         .answer-row input { background-color: #e8f5e9; border-color: var(--success); }
         .btn-check { width: 100%; padding: 18px; background: var(--success); color: white; border: none; border-radius: 15px; font-size: 24px; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 5px 0 #27ae60; }
-        .btn-check:disabled { background: #ccc; box-shadow: none; opacity: 0.7; }
+        .btn-check:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; transform: translateY(3px); }
         .result-box { height: 45px; margin: 10px 0; font-size: 26px; font-weight: bold; }
         .history-log { margin-top: 30px; border-top: 2px dashed #ccc; padding-top: 20px; text-align: left; }
-        .history-item { padding: 10px 15px; border-radius: 10px; margin-bottom: 8px; border-left: 6px solid #ccc; background: #fafafa; display: flex; justify-content: space-between; align-items: center; }
+        .history-item { padding: 10px 15px; border-radius: 10px; margin-bottom: 8px; border-left: 6px solid #ccc; background: #fafafa; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; }
         .item-correct { border-left-color: var(--success); background: #f1fbf3; }
         .item-wrong { border-left-color: var(--error); background: #fdf2f2; }
     </style>
@@ -34,7 +34,7 @@
 <body>
 
 <div class="app-card">
-    <h2>✍️ ฝึกบวกเลข (ระบบคะแนน Real-time)</h2>
+    <h2>✍️ ฝึกบวกเลข (v.เสถียร)</h2>
     <div class="difficulty-zones">
         <button class="btn-mode" id="m1" onclick="startGame(1)">1 หลัก</button>
         <button class="btn-mode" id="m2" onclick="startGame(2)">2 หลัก</button>
@@ -42,7 +42,7 @@
         <button class="btn-mode" id="m4" onclick="startGame(4)">4 หลัก</button>
     </div>
     <div class="stats">
-        <span>⏱️ <span id="timer-val">0</span> วิ</span>
+        <span>⏱️ <span id="time-val">0</span> วิ</span>
         <span>⭐ คะแนน: <span id="score-display">0</span></span>
     </div>
     <div class="math-grid">
@@ -63,11 +63,9 @@
 </div>
 
 <script>
-    // ตัวแปร Global ป้องกันคะแนนรีเซ็ต
-    let totalScore = 0; 
-    let n1 = 0, n2 = 0, correctAns = 0, currentDigit = 1;
-    let seconds = 0, timerObj, historyData = [];
+    let n1, n2, ans, currentDigit = 1, totalScore = 0, seconds = 0, timer, historyList = [];
 
+    // ระบบ Input Focus
     const inputs = Array.from(document.querySelectorAll('.num-in'));
     inputs.forEach((input, i) => {
         input.addEventListener('input', (e) => {
@@ -79,84 +77,75 @@
         });
     });
 
-    function startGame(digit) {
-        currentDigit = digit;
-        clearInterval(timerObj);
+    function startGame(d) {
+        currentDigit = d;
+        clearInterval(timer);
         seconds = 0;
-        document.getElementById('timer-val').innerText = "0";
+        document.getElementById('time-val').innerText = "0";
         document.getElementById('result-text').innerText = "";
         document.getElementById('check-btn').disabled = false;
         
         document.querySelectorAll('.btn-mode').forEach(b => b.classList.remove('active'));
-        document.getElementById('m'+digit).classList.add('active');
+        document.getElementById('m'+d).classList.add('active');
+        document.querySelectorAll('input').forEach(el => { if(!el.readOnly || el.style.opacity !== "0") el.value = ""; });
 
-        document.querySelectorAll('input').forEach(el => {
-            if(!el.readOnly || el.style.opacity !== "0") el.value = "";
-        });
-
-        let min = Math.pow(10, digit - 1), max = Math.pow(10, digit) - 1;
-        n1 = Math.floor(Math.random() * (max - min + 1) + min);
-        n2 = Math.floor(Math.random() * (max - min + 1) + min);
-        correctAns = n1 + n2;
+        let min = Math.pow(10, d-1), max = Math.pow(10, d)-1;
+        n1 = Math.floor(Math.random()*(max-min+1)+min);
+        n2 = Math.floor(Math.random()*(max-min+1)+min);
+        ans = n1 + n2;
 
         renderRows('q1_', n1); renderRows('q2_', n2);
-        timerObj = setInterval(() => { seconds++; document.getElementById('timer-val').innerText = seconds; }, 1000);
+        timer = setInterval(() => { seconds++; document.getElementById('time-val').innerText = seconds; }, 1000);
     }
 
-    function renderRows(prefix, num) {
+    function renderRows(p, num) {
         let digits = num.toString().split('').reverse();
         for(let i=0; i<=5; i++) {
-            let el = document.getElementById(prefix + i);
+            let el = document.getElementById(p+i);
             if(el) el.value = digits[i] || (el.style.opacity === "0" ? "" : "");
         }
     }
 
     function checkAnswer() {
-        let userStr = "";
-        for(let i=5; i>=0; i--) {
-            let val = document.getElementById('a' + i).value;
-            if(val !== "") userStr += val;
-        }
-        if(userStr === "") return alert("กรุณาใส่คำตอบก่อนครับ");
+        let uStr = "";
+        for(let i=5; i>=0; i--) { let v = document.getElementById('a'+i).value; if(v!=="") uStr += v; }
+        if(uStr === "") return alert("กรุณาใส่คำตอบครับ");
         
-        let userNum = parseInt(userStr);
-        let isCorrect = (userNum === correctAns);
-        const checkBtn = document.getElementById('check-btn');
-        checkBtn.disabled = true;
+        let uNum = parseInt(uStr);
+        let isRight = (uNum === ans);
+        document.getElementById('check-btn').disabled = true;
 
-        if (isCorrect) {
-            totalScore += 10; // บวกคะแนนสะสมจริง
-            document.getElementById('result-text').innerHTML = "<span style='color:green'>ถูกต้อง! +10 (กำลังสุ่มใหม่...)</span>";
+        if(isRight) {
+            totalScore += 10;
+            document.getElementById('result-text').innerHTML = "<span style='color:green'>🎉 ถูกต้อง! +10</span>";
             confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-            clearInterval(timerObj);
+            clearInterval(timer);
         } else {
-            totalScore -= 10; // หักคะแนนสะสมจริง
-            if(totalScore < 0) totalScore = 0;
-            document.getElementById('result-text').innerHTML = "<span style='color:red'>ผิดครับ -10 (กำลังสุ่มใหม่...)</span>";
+            totalScore -= 10; if(totalScore < 0) totalScore = 0;
+            document.getElementById('result-text').innerHTML = "<span style='color:red'>❌ ผิดครับ -10</span>";
         }
 
-        // อัปเดตการแสดงผลคะแนน "ทันที"
+        // 1. คะแนนเพิ่ม/ลดทันที
         document.getElementById('score-display').innerText = totalScore;
         
-        saveHistory(isCorrect, userNum);
+        // 2. จัดเก็บประวัติทันที (ทั้งถูกและผิด)
+        addHistory(isRight, uNum);
 
-        // รอ 3 วิแล้วเริ่มข้อใหม่
-        setTimeout(() => {
-            startGame(currentDigit);
-        }, 3000);
+        // 3. รอ 1.5 วินาที (ไม่นานเกินไป) แล้วสุ่มข้อใหม่
+        setTimeout(() => { startGame(currentDigit); }, 1500);
     }
 
-    function saveHistory(isCorrect, userNum) {
-        const logList = document.getElementById('log-list');
-        historyData.unshift({ task: `${n1} + ${n2} = ${correctAns}`, user: userNum, status: isCorrect });
-        if (historyData.length > 10) historyData.pop();
+    function addHistory(isRight, uNum) {
+        const list = document.getElementById('log-list');
+        historyList.unshift({ task: `${n1}+${n2}=${ans}`, u: uNum, ok: isRight });
+        if(historyList.length > 10) historyList.pop();
 
-        logList.innerHTML = "";
-        historyData.forEach(item => {
+        list.innerHTML = "";
+        historyList.forEach(item => {
             const div = document.createElement('div');
-            div.className = `history-item ${item.status ? 'item-correct' : 'item-wrong'}`;
-            div.innerHTML = `<span>${item.task}</span><span>ตอบ: ${item.user} ${item.status ? '✅' : '❌'}</span>`;
-            logList.appendChild(div);
+            div.className = `history-item ${item.ok ? 'item-correct' : 'item-wrong'}`;
+            div.innerHTML = `<span>${item.task}</span><span>ตอบ: ${item.u} ${item.ok ? '✅':'❌'}</span>`;
+            list.appendChild(div);
         });
     }
 
