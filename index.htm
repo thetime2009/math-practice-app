@@ -3,11 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>โปรแกรมฝึกบวกเลข - ช่องตรงกันทุกแถว</title>
+    <title>ฝึกบวกเลข - พร้อมเอฟเฟกต์จุดพลุ</title>
     <link href="https://googleapis.com" rel="stylesheet">
+    <!-- นำเข้า Library จุดพลุ -->
+    <script src="https://jsdelivr.net"></script>
+    
     <style>
         :root {
-            --bg-color: #f8f9fa;
+            --bg-color: #f0f4f8;
             --primary: #3498db;
             --success: #2ecc71;
             --carry-color: #f1c40f;
@@ -46,6 +49,7 @@
             border-radius: 12px;
             cursor: pointer;
             font-weight: bold;
+            transition: 0.2s;
         }
 
         .btn-mode:hover { background: var(--primary); color: white; }
@@ -57,6 +61,9 @@
             font-size: 1.1rem;
             font-weight: bold;
             color: #555;
+            background: #eef2f7;
+            padding: 10px;
+            border-radius: 15px;
         }
 
         .math-grid {
@@ -78,7 +85,6 @@
             text-align: left;
         }
 
-        /* ขนาด Input เท่ากันทุกช่อง */
         input {
             width: 55px;
             height: 65px;
@@ -91,14 +97,12 @@
             outline: none;
         }
 
-        /* สีพิเศษสำหรับช่องตัวทด */
         .carry-row input {
             background-color: #fffde7;
             border-color: var(--carry-color);
             color: #d4ac0d;
         }
 
-        /* เส้นใต้แสดงการบวก */
         .answer-row {
             border-top: 4px solid #333;
             margin-top: 10px;
@@ -121,19 +125,26 @@
             font-weight: bold;
             cursor: pointer;
             margin-top: 10px;
+            box-shadow: 0 4px 0 #27ae60;
+        }
+
+        .btn-check:active {
+            transform: translateY(2px);
+            box-shadow: none;
         }
 
         .result-box {
             height: 40px;
             margin: 15px 0;
             font-size: 24px;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
 <div class="app-card">
-    <h6>✍️ แบบฝึกหัดการบวกเลข เด็กชายเพรช</h6>
+    <h1>✍️ แบบฝึกหัดการบวกเลข เด็กชายเพรช</h1>
 
     <div class="difficulty-zones">
         <button class="btn-mode" onclick="startGame(1)">1 หลัก</button>
@@ -148,21 +159,19 @@
     </div>
 
     <div class="math-grid">
-        <!-- แถวตัวทด: ปรับเป็น 6 ช่องให้เท่ากับช่องคำตอบสูงสุด -->
         <div class="row carry-row">
             <span class="label">ตัวทด</span>
-            <input type="number" id="c5" maxlength="1">
-            <input type="number" id="c4" maxlength="1">
-            <input type="number" id="c3" maxlength="1">
-            <input type="number" id="c2" maxlength="1">
-            <input type="number" id="c1" maxlength="1">
-            <input type="number" id="c0" maxlength="1">
+            <input type="number" id="c5">
+            <input type="number" id="c4">
+            <input type="number" id="c3">
+            <input type="number" id="c2">
+            <input type="number" id="c1">
+            <input type="number" id="c0">
         </div>
 
-        <!-- แถวตัวตั้ง -->
         <div class="row">
             <span class="label">ตัวตั้ง</span>
-            <input type="text" id="q1_5" readonly style="opacity:0"> <!-- ช่องเสริมให้แถวเท่ากัน -->
+            <input type="text" id="q1_5" readonly style="opacity:0">
             <input type="text" id="q1_4" readonly>
             <input type="text" id="q1_3" readonly>
             <input type="text" id="q1_2" readonly>
@@ -170,10 +179,9 @@
             <input type="text" id="q1_0" readonly>
         </div>
 
-        <!-- แถวตัวบวก -->
         <div class="row">
             <span class="label">ตัวบวก</span>
-            <input type="text" id="q2_5" readonly style="opacity:0"> <!-- ช่องเสริมให้แถวเท่ากัน -->
+            <input type="text" id="q2_5" readonly style="opacity:0">
             <input type="text" id="q2_4" readonly>
             <input type="text" id="q2_3" readonly>
             <input type="text" id="q2_2" readonly>
@@ -181,15 +189,14 @@
             <input type="text" id="q2_0" readonly>
         </div>
 
-        <!-- แถวคำตอบ -->
         <div class="row answer-row">
             <span class="label">คำตอบ</span>
-            <input type="number" id="a5" maxlength="1">
-            <input type="number" id="a4" maxlength="1">
-            <input type="number" id="a3" maxlength="1">
-            <input type="number" id="a2" maxlength="1">
-            <input type="number" id="a1" maxlength="1">
-            <input type="number" id="a0" maxlength="1">
+            <input type="number" id="a5">
+            <input type="number" id="a4">
+            <input type="number" id="a3">
+            <input type="number" id="a2">
+            <input type="number" id="a1">
+            <input type="number" id="a0">
         </div>
     </div>
 
@@ -205,7 +212,7 @@
     let timer = 0;
     let timerInt;
 
-    // ระบบ Input จัดการเรื่องกรอกเลขตัวเดียวและ Focus
+    // ระบบ Input ตัวเดียวและข้ามช่อง
     document.querySelectorAll('input[type="number"]').forEach(input => {
         input.addEventListener('input', function() {
             if (this.value.length > 1) this.value = this.value.slice(-1);
@@ -223,12 +230,10 @@
         document.getElementById('time').innerText = timer;
         document.getElementById('result').innerText = "";
         
-        // ล้างข้อมูลทุกช่อง
         document.querySelectorAll('input').forEach(el => {
             if(!el.readOnly || el.style.opacity !== "0") el.value = "";
         });
 
-        // สุ่มโจทย์
         let min = Math.pow(10, digit - 1);
         let max = Math.pow(10, digit) - 1;
         let n1 = Math.floor(Math.random() * (max - min + 1) + min);
@@ -263,13 +268,23 @@
         }
         
         if (parseInt(ansStr) === currentAns) {
-            document.getElementById('result').innerHTML = "<span style='color:green'>🎉 ถูกต้อง!</span>";
+            // --- เอฟเฟกต์เมื่อตอบถูก ---
+            document.getElementById('result').innerHTML = "<span style='color:green'>🎉 ถูกต้องที่สุด!</span>";
             document.getElementById('sound-correct').play();
+            
+            // เรียกใช้จุดพลุ
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#2ecc71', '#3498db', '#f1c40f', '#e74c3c']
+            });
+
             score += 10;
             document.getElementById('score').innerText = score;
             clearInterval(timerInt);
         } else {
-            document.getElementById('result').innerHTML = "<span style='color:red'>❌ ลองใหม่อีกครั้ง</span>";
+            document.getElementById('result').innerHTML = "<span style='color:red'>❌ ลองคำนวณอีกทีนะ</span>";
         }
     }
 
