@@ -3,24 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- Meta สำหรับ iOS Safari -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="เกมบวกเลขสายตึง">
+    <meta name="apple-mobile-web-app-title" content="เกมบวกเลข">
     <link rel="apple-touch-icon" href="https://flaticon.com">
-    
-    <title>เกมบวกเลขสายตึงของ นายเพรช v1.7.1</title>
+
+    <title>เกมบวกเลขสายตึงของ นายเพรช v1.7.2</title>
     <link href="https://googleapis.com" rel="stylesheet">
     
     <style>
         :root { --primary: #3498db; --success: #2ecc71; --error: #e74c3c; --carry: #fffde7; --level-color: #9b59b6; --gold: #f1c40f; }
-        body { font-family: 'Sarabun', sans-serif; background-color: #f0f4f8; margin: 0; padding: 10px; display: flex; justify-content: center; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Sarabun', sans-serif; background-color: #f0f4f8; margin: 0; padding: 10px; display: flex; justify-content: center; }
         
         .app-card { background: white; padding: 20px 15px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 480px; position: relative; }
         
+        /* ปุ่มแนะนำการติดตั้ง (แสดงผลเสมอถ้าไม่ใช่บนแอป) */
+        .install-guide { background: #2c3e50; color: white; padding: 12px; border-radius: 12px; margin-bottom: 15px; font-size: 13px; display: block; border: none; width: 100%; cursor: pointer; }
+
         .main-title { font-size: 22px; font-weight: bold; color: #2c3e50; margin: 5px 0 0 0; }
         .sub-title { font-size: 14px; color: var(--primary); font-weight: bold; margin-bottom: 10px; display: block; }
         .version-tag { position: absolute; top: 12px; right: 18px; font-size: 10px; color: #ccc; }
-
         .level-badge { display: inline-block; background: var(--level-color); color: white; padding: 4px 18px; border-radius: 20px; font-weight: bold; margin-bottom: 10px; font-size: 14px; }
         
         .difficulty-zones { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px; }
@@ -28,7 +32,7 @@
         .btn-mode.active { background: var(--primary); color: white; }
         
         .row-controls { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 15px; background: #fff; padding: 10px; border-radius: 15px; border: 2px dashed #ddd; }
-        .btn-row-edit { width: 35px; height: 35px; border-radius: 50%; border: none; font-size: 20px; font-weight: bold; cursor: pointer; color: white; display: flex; align-items: center; justify-content: center; }
+        .btn-row-edit { width: 35px; height: 35px; border-radius: 50%; border: none; font-size: 20px; font-weight: bold; cursor: pointer; color: white; }
         .btn-plus { background: var(--success); }
         .btn-minus { background: var(--error); }
 
@@ -42,23 +46,18 @@
         .answer-row { border-top: 3px solid #444; padding-top: 10px; margin-top: 5px; grid-column: 1 / span 2; display: grid; grid-template-columns: 60px 1fr; gap: 4px; align-items: center; }
         .answer-row input { background-color: #f1fbf3; border-color: var(--success); }
 
-        .btn-check { width: 100%; padding: 18px; background: var(--success); color: white; border: none; border-radius: 18px; font-size: 22px; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 5px 0 #27ae60; }
+        .btn-check { width: 100%; padding: 18px; background: var(--success); color: white; border: none; border-radius: 15px; font-size: 22px; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 5px 0 #27ae60; }
         .thai-read { font-size: 16px; color: #555; background: #fff9c4; padding: 8px; border-radius: 12px; margin-top: 5px; }
-
-        /* ส่วนประวัติที่นำกลับมา */
         .history-log { margin-top: 20px; border-top: 1px dashed #ddd; padding-top: 15px; text-align: left; }
         .history-item { padding: 8px 12px; border-radius: 10px; margin-bottom: 6px; border-left: 5px solid #ccc; background: #fdfdfd; display: flex; justify-content: space-between; font-size: 11px; }
-        .item-correct { border-left-color: var(--success); background: #f1fbf3; }
-        .item-wrong { border-left-color: var(--error); background: #fdf2f2; }
-
-        #pwa-install-prompt { display: none; background: #2c3e50; color: white; padding: 10px; border-radius: 10px; margin-bottom: 10px; font-size: 13px; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div class="app-card">
-    <div id="pwa-install-prompt">📲 แตะที่นี่เพื่อติดตั้งแอปบนมือถือ</div>
-    <div class="version-tag">v1.7.1-HistoryBack</div>
+    <button class="install-guide" onclick="showInstallInfo()">📲 วิธีติดตั้งแอปไว้บนมือถือ</button>
+    
+    <div class="version-tag">v1.7.2</div>
     <h1 class="main-title">เกมบวกเลขสายตึง</h1>
     <span class="sub-title">ของ ธนพงษ์ เผ่าเพ็ง</span>
     
@@ -81,7 +80,7 @@
 
     <div style="display:flex; justify-content:space-around; font-weight:bold; background:#f8f9fa; padding:10px; border-radius:15px; margin-bottom:10px;">
         <span>⏱️ <span id="time-val">0</span> วิ</span>
-        <span>⭐ <span id="score-display">0</span></span>
+        <span>⭐คะแนนรวม <span id="score-display">0</span></span>
     </div>
 
     <div class="math-table" id="math-grid">
@@ -102,7 +101,6 @@
     <div id="result-text" style="min-height:40px; font-weight:bold; margin:5px;"></div>
     <button class="btn-check" id="main-btn" onclick="checkAnswer()">🎯 ตรวจคำตอบ</button>
 
-    <!-- ส่วนประวัติที่นำกลับมา -->
     <div class="history-log">
         <strong>🕒 ประวัติ 10 ข้อล่าสุด:</strong>
         <div id="log-list"></div>
@@ -110,21 +108,15 @@
 </div>
 
 <script>
-    // ระบบ PWA
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault(); deferredPrompt = e;
-        document.getElementById('pwa-install-prompt').style.display = 'block';
-    });
-
-    document.getElementById('pwa-install-prompt').addEventListener('click', async () => {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') document.getElementById('pwa-install-prompt').style.display = 'none';
-            deferredPrompt = null;
+    // ฟังก์ชันแนะนำการติดตั้ง
+    function showInstallInfo() {
+        const ua = navigator.userAgent.toLowerCase();
+        if (ua.indexOf('iphone') > -1 || ua.indexOf('ipad') > -1) {
+            alert("วิธีติดตั้งบน iPhone:\n1. กดปุ่ม 'แชร์' (สี่เหลี่ยมลูกศรชี้ขึ้น ด้านล่างหน้าจอ)\n2. เลือก 'เพิ่มลงในหน้าจอโฮม' (Add to Home Screen)");
+        } else {
+            alert("วิธีติดตั้งบน Android:\n1. กดปุ่ม '3 จุด' (มุมขวาบนของ Chrome)\n2. เลือก 'ติดตั้งแอป' หรือ 'เพิ่มลงในหน้าจอโฮม'");
         }
-    });
+    }
 
     let nValues = [], ans, selectedMode = 1, curD = 1, totalScore = 0, sec = 0, timer, rowCount = 2, hList = [];
 
@@ -204,12 +196,12 @@
         clearInterval(timer);
 
         totalScore += isRight ? point : -point;
-        document.getElementById('result-text').innerHTML = (isRight ? `<span style='color:green'>ถูกต้อง! +${point}</span>` : `<span style='color:red'>ผิดครับ -${point}</span>`) + `<div class="thai-read">คำตอบคือ: ${thaiRead(ans)}</div>`;
+        document.getElementById('result-text').innerHTML = (isRight ? `<span style='color:green'>ถูกต้อง! +${point}</span>` : `<span style='color:red'>ผิดครับ -${point}</span>`) + `<div class="thai-read">คำตอบตือ: ${thaiRead(ans)}</div>`;
         
         document.getElementById('score-display').innerText = totalScore;
         document.getElementById('level-tag').innerText = `🏆 Level ${Math.max(0, Math.floor(totalScore/100))}`;
         
-        addHistory(isRight, uNum); // บันทึกประวัติ
+        addHistory(isRight, uNum);
 
         document.getElementById('main-btn').innerText = "🎲 ข้อต่อไป";
         document.getElementById('main-btn').onclick = () => selectMode(selectedMode);
