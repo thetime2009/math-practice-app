@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- ส่วนประกอบสำหรับการติดตั้งเป็นแอป -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="เกมบวกเลข">
+    <meta name="apple-mobile-web-app-title" content="เกมบวกเลขสายตึง">
     <link rel="apple-touch-icon" href="https://flaticon.com">
     
     <title>เกมบวกเลขสายตึงของ นายเพรช v1.7.1</title>
@@ -29,11 +28,11 @@
         .btn-mode.active { background: var(--primary); color: white; }
         
         .row-controls { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 15px; background: #fff; padding: 10px; border-radius: 15px; border: 2px dashed #ddd; }
-        .btn-row-edit { width: 40px; height: 40px; border-radius: 50%; border: none; font-size: 22px; font-weight: bold; cursor: pointer; color: white; display: flex; align-items: center; justify-content: center; }
+        .btn-row-edit { width: 35px; height: 35px; border-radius: 50%; border: none; font-size: 20px; font-weight: bold; cursor: pointer; color: white; display: flex; align-items: center; justify-content: center; }
         .btn-plus { background: var(--success); }
         .btn-minus { background: var(--error); }
 
-        .math-table { display: grid; grid-template-columns: 60px 1fr; gap: 4px; align-items: center; margin-bottom: 15px; max-height: 45vh; overflow-y: auto; padding-right: 5px; }
+        .math-table { display: grid; grid-template-columns: 60px 1fr; gap: 4px; align-items: center; margin-bottom: 15px; max-height: 40vh; overflow-y: auto; padding-right: 5px; }
         .row-label { font-weight: bold; color: #bbb; font-size: 11px; text-align: left; }
         .digit-group { display: grid; grid-template-columns: repeat(6, 1fr); gap: 3px; justify-items: end; }
         
@@ -46,7 +45,12 @@
         .btn-check { width: 100%; padding: 18px; background: var(--success); color: white; border: none; border-radius: 18px; font-size: 22px; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 5px 0 #27ae60; }
         .thai-read { font-size: 16px; color: #555; background: #fff9c4; padding: 8px; border-radius: 12px; margin-top: 5px; }
 
-        /* ตัวแจ้งเตือนให้ติดตั้งแอป */
+        /* ส่วนประวัติที่นำกลับมา */
+        .history-log { margin-top: 20px; border-top: 1px dashed #ddd; padding-top: 15px; text-align: left; }
+        .history-item { padding: 8px 12px; border-radius: 10px; margin-bottom: 6px; border-left: 5px solid #ccc; background: #fdfdfd; display: flex; justify-content: space-between; font-size: 11px; }
+        .item-correct { border-left-color: var(--success); background: #f1fbf3; }
+        .item-wrong { border-left-color: var(--error); background: #fdf2f2; }
+
         #pwa-install-prompt { display: none; background: #2c3e50; color: white; padding: 10px; border-radius: 10px; margin-bottom: 10px; font-size: 13px; cursor: pointer; }
     </style>
 </head>
@@ -54,14 +58,13 @@
 
 <div class="app-card">
     <div id="pwa-install-prompt">📲 แตะที่นี่เพื่อติดตั้งแอปบนมือถือ</div>
-    <div class="version-tag">v1.7.1-PWA</div>
+    <div class="version-tag">v1.7.1-HistoryBack</div>
     <h1 class="main-title">เกมบวกเลขสายตึง</h1>
-    <span class="sub-title">ของ นายเพรช</span>
+    <span class="sub-title">ของ ธนพงษ์ เผ่าเพ็ง</span>
     
     <div class="level-badge" id="level-tag">🏆 Level 0</div>
     
-    <!-- ส่วนโจทย์และปุ่มเหมือนเดิม -->
-    <div class="difficulty-zones" id="modes">
+    <div class="difficulty-zones">
         <button class="btn-mode" id="m1" onclick="selectMode(1)">1 หลัก</button>
         <button class="btn-mode" id="m2" onclick="selectMode(2)">2 หลัก</button>
         <button class="btn-mode" id="m3" onclick="selectMode(3)">3 หลัก</button>
@@ -78,7 +81,7 @@
 
     <div style="display:flex; justify-content:space-around; font-weight:bold; background:#f8f9fa; padding:10px; border-radius:15px; margin-bottom:10px;">
         <span>⏱️ <span id="time-val">0</span> วิ</span>
-        <span>⭐คะแนนรวม <span id="score-display">0</span></span>
+        <span>⭐ <span id="score-display">0</span></span>
     </div>
 
     <div class="math-table" id="math-grid">
@@ -98,14 +101,19 @@
 
     <div id="result-text" style="min-height:40px; font-weight:bold; margin:5px;"></div>
     <button class="btn-check" id="main-btn" onclick="checkAnswer()">🎯 ตรวจคำตอบ</button>
+
+    <!-- ส่วนประวัติที่นำกลับมา -->
+    <div class="history-log">
+        <strong>🕒 ประวัติ 10 ข้อล่าสุด:</strong>
+        <div id="log-list"></div>
+    </div>
 </div>
 
 <script>
-    // --- ระบบ PWA สำหรับการติดตั้ง ---
+    // ระบบ PWA
     let deferredPrompt;
     window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
+        e.preventDefault(); deferredPrompt = e;
         document.getElementById('pwa-install-prompt').style.display = 'block';
     });
 
@@ -118,8 +126,7 @@
         }
     });
 
-    // --- LOGIC เกมเดิม (คงไว้ทั้งหมด) ---
-    let nValues = [], ans, selectedMode = 1, curD = 1, totalScore = 0, sec = 0, timer, rowCount = 2;
+    let nValues = [], ans, selectedMode = 1, curD = 1, totalScore = 0, sec = 0, timer, rowCount = 2, hList = [];
 
     function thaiRead(num) {
         if (num === 0) return "ศูนย์";
@@ -190,7 +197,7 @@
 
     function checkAnswer() {
         let uStr = "";
-        for(let i=5; i>=0; i--) { let v = document.getElementById('a'+i).value; if(v!=="") uStr += v; }
+        for(let i=5; i>=0; i--) { let v = document.getElementById('a' + i).value; if(v!=="") uStr += v; }
         if(uStr === "") return;
         let uNum = parseInt(uStr), isRight = (uNum === ans);
         let point = (curD * 2) * (rowCount - 1);
@@ -201,8 +208,25 @@
         
         document.getElementById('score-display').innerText = totalScore;
         document.getElementById('level-tag').innerText = `🏆 Level ${Math.max(0, Math.floor(totalScore/100))}`;
+        
+        addHistory(isRight, uNum); // บันทึกประวัติ
+
         document.getElementById('main-btn').innerText = "🎲 ข้อต่อไป";
         document.getElementById('main-btn').onclick = () => selectMode(selectedMode);
+    }
+
+    function addHistory(isRight, uN) {
+        const list = document.getElementById('log-list');
+        let taskText = nValues.join(' + ') + ` = ${ans}`;
+        hList.unshift({ t: taskText, u: uN, ok: isRight });
+        if(hList.length > 10) hList.pop();
+        list.innerHTML = "";
+        hList.forEach(i => {
+            const d = document.createElement('div');
+            d.className = `history-item ${i.ok ? 'item-correct' : 'item-wrong'}`;
+            d.innerHTML = `<span>${i.t.substring(0,25)}...</span><span>ตอบ: ${i.u} ${i.ok ? '✅':'❌'}</span>`;
+            list.appendChild(d);
+        });
     }
 
     window.onload = () => startGame(1);
