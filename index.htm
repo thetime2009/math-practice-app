@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>โปรแกรมฝึกบวกเลขพร้อมตัวทด</title>
+    <title>ฝึกบวกเลขทีละขั้น</title>
     <link href="https://googleapis.com" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #f0f4f8;
-            --primary-color: #4a90e2;
-            --success-color: #4caf50;
-            --error-color: #f44336;
-            --input-border: #ced4da;
+            --bg-color: #f8f9fa;
+            --primary: #4a90e2;
+            --success: #4caf50;
+            --carry-bg: #fffde7;
+            --carry-border: #ffd54f;
         }
 
         body {
@@ -19,37 +19,55 @@
             background-color: var(--bg-color);
             display: flex;
             justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
+            padding: 20px;
         }
 
         .app-card {
             background: white;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            padding: 25px;
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
             text-align: center;
-            min-width: 400px;
+            width: 100%;
+            max-width: 500px;
         }
 
-        .header {
-            margin-bottom: 20px;
-        }
-
-        .stats-bar {
+        .stats {
             display: flex;
             justify-content: space-between;
+            background: #f1f3f5;
+            padding: 10px 20px;
+            border-radius: 15px;
             margin-bottom: 20px;
             font-weight: bold;
-            color: #555;
-            background: #e9ecef;
-            padding: 10px;
-            border-radius: 10px;
         }
 
-        /* ตารางคำนวณ */
-        .math-grid {
+        /* ปุ่มเลือกหลัก */
+        .difficulty-zones {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .btn-mode {
+            padding: 10px 5px;
+            border: 2px solid var(--primary);
+            background: white;
+            color: var(--primary);
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .btn-mode:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* ตารางเลข */
+        .math-table {
             display: inline-block;
             margin-bottom: 20px;
         }
@@ -58,14 +76,14 @@
             display: flex;
             justify-content: flex-end;
             align-items: center;
-            margin-bottom: 8px;
+            margin-bottom: 5px;
         }
 
-        .row-label {
-            margin-right: 15px;
-            font-weight: bold;
-            color: #666;
-            width: 80px;
+        .label {
+            font-size: 14px;
+            color: #888;
+            margin-right: 10px;
+            width: 60px;
             text-align: left;
         }
 
@@ -75,29 +93,22 @@
             text-align: center;
             font-size: 28px;
             font-weight: bold;
-            margin: 0 2px;
-            border: 2px solid var(--input-border);
-            border-radius: 8px;
-            transition: all 0.2s;
+            margin: 2px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
         }
 
-        input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
-        }
-
-        /* แถวตัวทด */
+        /* ช่องตัวทด */
         .carry-row input {
-            height: 35px;
-            width: 35px;
+            height: 38px;
+            width: 38px;
             font-size: 18px;
-            border-color: #ffcc80;
-            background-color: #fffde7;
+            background: var(--carry-bg);
+            border-color: var(--carry-border);
             color: #f57c00;
         }
 
-        /* แถวคำตอบ */
+        /* ช่องคำตอบ */
         .answer-row {
             border-top: 3px solid #333;
             margin-top: 10px;
@@ -105,194 +116,163 @@
         }
 
         .answer-row input {
-            border-color: #81c784;
-            background-color: #f1f8e9;
+            border-color: var(--success);
+            background: #f1f8e9;
         }
 
-        /* ปุ่มต่างๆ */
-        .controls {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .btn {
-            padding: 12px 25px;
+        .btn-check {
+            width: 100%;
+            padding: 15px;
+            background: var(--success);
+            color: white;
             border: none;
-            border-radius: 12px;
-            font-size: 18px;
+            border-radius: 15px;
+            font-size: 20px;
             font-weight: bold;
             cursor: pointer;
-            transition: transform 0.1s, opacity 0.2s;
         }
 
-        .btn:active { transform: scale(0.98); }
-
-        .btn-random { background-color: var(--primary-color); color: white; }
-        .btn-check { background-color: var(--success-color); color: white; }
-
-        .result-msg {
-            margin-top: 15px;
-            font-size: 24px;
+        .result-box {
+            height: 40px;
+            margin: 15px 0;
+            font-size: 22px;
             font-weight: bold;
-            height: 30px;
         }
-
-        .correct { color: var(--success-color); }
-        .wrong { color: var(--error-color); }
     </style>
 </head>
 <body>
 
 <div class="app-card">
-    <div class="header">
-        <h2>🧮 ฝึกบวกเลข (Step-by-Step)</h2>
+    <h3>🎯 ฝึกบวกเลขทีละหลัก</h3>
+    
+    <div class="difficulty-zones">
+        <button class="btn-mode" onclick="startGame(1)">1 หลัก</button>
+        <button class="btn-mode" onclick="startGame(2)">2 หลัก</button>
+        <button class="btn-mode" onclick="startGame(3)">3 หลัก</button>
+        <button class="btn-mode" onclick="startGame(4)">4 หลัก</button>
     </div>
 
-    <div class="stats-bar">
-        <span>⏱️ เวลา: <span id="timer">0</span> วิ</span>
-        <span>🏆 คะแนน: <span id="score">0</span></span>
+    <div class="stats">
+        <span>⏱️ <span id="time">0</span> วิ</span>
+        <span>⭐ <span id="score">0</span></span>
     </div>
 
-    <div class="math-grid">
-        <!-- แถวตัวทด -->
+    <div class="math-table">
+        <!-- ตัวทด -->
         <div class="row carry-row">
-            <span class="row-label">ตัวทด</span>
-            <input type="number" id="c4" maxlength="1">
-            <input type="number" id="c3" maxlength="1">
-            <input type="number" id="c2" maxlength="1">
-            <input type="number" id="c1" maxlength="1">
-            <div style="width: 49px;"></div> <!-- เว้นหลักสุดท้าย -->
+            <span class="label">ตัวทด</span>
+            <input type="number" id="c4">
+            <input type="number" id="c3">
+            <input type="number" id="c2">
+            <input type="number" id="c1">
+            <div style="width: 49px;"></div>
         </div>
-
-        <!-- ตัวเลขโจทย์ 1 -->
+        <!-- โจทย์ -->
         <div class="row">
-            <span class="row-label">ตัวตั้ง</span>
-            <input type="text" id="q1_4" readonly tabindex="-1">
-            <input type="text" id="q1_3" readonly tabindex="-1">
-            <input type="text" id="q1_2" readonly tabindex="-1">
-            <input type="text" id="q1_1" readonly tabindex="-1">
-            <input type="text" id="q1_0" readonly tabindex="-1">
+            <span class="label">ตัวตั้ง</span>
+            <input type="text" id="q1_4" readonly>
+            <input type="text" id="q1_3" readonly>
+            <input type="text" id="q1_2" readonly>
+            <input type="text" id="q1_1" readonly>
+            <input type="text" id="q1_0" readonly>
         </div>
-
-        <!-- ตัวเลขโจทย์ 2 -->
         <div class="row">
-            <span class="row-label">ตัวบวก</span>
-            <input type="text" id="q2_4" readonly tabindex="-1">
-            <input type="text" id="q2_3" readonly tabindex="-1">
-            <input type="text" id="q2_2" readonly tabindex="-1">
-            <input type="text" id="q2_1" readonly tabindex="-1">
-            <input type="text" id="q2_0" readonly tabindex="-1">
+            <span class="label">ตัวบวก</span>
+            <input type="text" id="q2_4" readonly>
+            <input type="text" id="q2_3" readonly>
+            <input type="text" id="q2_2" readonly>
+            <input type="text" id="q2_1" readonly>
+            <input type="text" id="q2_0" readonly>
         </div>
-
-        <!-- แถวคำตอบ -->
+        <!-- คำตอบ -->
         <div class="row answer-row">
-            <span class="row-label">คำตอบ</span>
-            <input type="number" id="a5" maxlength="1">
-            <input type="number" id="a4" maxlength="1">
-            <input type="number" id="a3" maxlength="1">
-            <input type="number" id="a2" maxlength="1">
-            <input type="number" id="a1" maxlength="1">
-            <input type="number" id="a0" maxlength="1">
+            <span class="label">คำตอบ</span>
+            <input type="number" id="a5">
+            <input type="number" id="a4">
+            <input type="number" id="a3">
+            <input type="number" id="a2">
+            <input type="number" id="a1">
+            <input type="number" id="a0">
         </div>
     </div>
 
-    <div class="result-msg" id="msg"></div>
-
-    <div class="controls">
-        <button class="btn btn-check" onclick="checkAnswer()">🎯 ตรวจคำตอบ</button>
-        <button class="btn btn-random" onclick="initGame()">🎲 สุ่มโจทย์ใหม่ (Clear)</button>
-    </div>
+    <div id="result" class="result-box"></div>
+    <button class="btn-check" onclick="checkAnswer()">ตรวจคำตอบ</button>
 </div>
 
-<!-- เสียงประกอบ -->
-<audio id="snd-correct" src="https://soundjay.com"></audio>
-<audio id="snd-wrong" src="https://soundjay.com"></audio>
+<audio id="sound-win" src="https://soundjay.com"></audio>
 
 <script>
+    let currentAns = 0;
     let score = 0;
-    let seconds = 0;
-    let timerInterval;
-    let correctAnswer = 0;
+    let timer = 0;
+    let timerInt;
 
-    // ระบบจัดการ Input: ใส่ได้ตัวเดียวและกระโดดไปช่องถัดไป
+    // ระบบ Input ตัวเดียวแล้วข้ามช่อง
     document.querySelectorAll('input[type="number"]').forEach(input => {
         input.addEventListener('input', function() {
             if (this.value.length > 1) this.value = this.value.slice(-1);
-            if (this.value !== "") {
-                const next = this.nextElementSibling;
-                if (next && next.tagName === "INPUT") next.focus();
+            if (this.value) {
+                let next = this.nextElementSibling;
+                if(next && next.tagName === "INPUT") next.focus();
             }
         });
     });
 
-    function startTimer() {
-        clearInterval(timerInterval);
-        seconds = 0;
-        document.getElementById('timer').innerText = seconds;
-        timerInterval = setInterval(() => {
-            seconds++;
-            document.getElementById('timer').innerText = seconds;
+    function startGame(digit) {
+        // 1. Reset ทุกอย่าง (Clear)
+        clearInterval(timerInt);
+        timer = 0;
+        document.getElementById('time').innerText = timer;
+        document.getElementById('result').innerText = "";
+        document.querySelectorAll('input').forEach(el => {
+            if(!el.readOnly) el.value = "";
+            el.style.backgroundColor = "";
+        });
+
+        // 2. สุ่มเลขตามหลักที่เลือก
+        let min = Math.pow(10, digit - 1);
+        let max = Math.pow(10, digit) - 1;
+        let n1 = Math.floor(Math.random() * (max - min + 1) + min);
+        let n2 = Math.floor(Math.random() * (max - min + 1) + min);
+        currentAns = n1 + n2;
+
+        // 3. แสดงเลขโจทย์ (กระจายตัวเลข)
+        distributeNumber('q1_', n1);
+        distributeNumber('q2_', n2);
+
+        // 4. เริ่มจับเวลา
+        timerInt = setInterval(() => {
+            timer++;
+            document.getElementById('time').innerText = timer;
         }, 1000);
     }
 
-    function initGame() {
-        startTimer();
-        // 1. ล้างค่าทุกช่อง
-        document.querySelectorAll('input').forEach(el => {
-            if(!el.readOnly) el.value = "";
-            el.style.backgroundColor = ""; 
-        });
-        document.getElementById('msg').innerHTML = "";
-
-        // 2. สุ่มตัวเลข (สุ่ม 2-4 หลัก)
-        const digits = Math.floor(Math.random() * 3) + 2;
-        const max = Math.pow(10, digits) - 1;
-        const min = Math.pow(10, digits - 1);
-        
-        const n1 = Math.floor(Math.random() * (max - min + 1) + min);
-        const n2 = Math.floor(Math.random() * (max - min + 1) + min);
-        correctAnswer = n1 + n2;
-
-        // 3. แสดงเลขโจทย์
-        fillQuestion('q1_', n1);
-        fillQuestion('q2_', n2);
-    }
-
-    function fillQuestion(prefix, num) {
-        // เคลียร์ช่องโจทย์ก่อน
+    function distributeNumber(prefix, num) {
         for(let i=0; i<=4; i++) document.getElementById(prefix + i).value = "";
-        
-        let digits = num.toString().split('').reverse();
-        digits.forEach((digit, i) => {
-            document.getElementById(prefix + i).value = digit;
-        });
+        let arr = num.toString().split('').reverse();
+        arr.forEach((d, i) => document.getElementById(prefix + i).value = d);
     }
 
     function checkAnswer() {
         let userStr = "";
-        // รวมเลขจากช่องคำตอบ a5 ถึง a0
-        for(let i=5; i>=0; i--) {
-            userStr += document.getElementById('a' + i).value;
-        }
+        for(let i=5; i>=0; i--) userStr += document.getElementById('a' + i).value;
         
-        const userVal = parseInt(userStr);
-
-        if (userVal === correctAnswer) {
-            document.getElementById('msg').innerHTML = "<span class='correct'>🎯 ถูกต้องยอดเยี่ยม!</span>";
-            document.getElementById('snd-correct').play();
+        if (parseInt(userStr) === currentAns) {
+            document.getElementById('result').innerHTML = "✅ เก่งมาก!";
+            document.getElementById('result').style.color = "green";
+            document.getElementById('sound-win').play();
             score += 10;
             document.getElementById('score').innerText = score;
-            clearInterval(timerInterval);
+            clearInterval(timerInt);
         } else {
-            document.getElementById('msg').innerHTML = "<span class='wrong'>❌ ลองใหม่อีกนิดนะ</span>";
-            document.getElementById('snd-wrong').play();
+            document.getElementById('result').innerHTML = "❌ ลองคำนวณใหม่นะ";
+            document.getElementById('result').style.color = "red";
         }
     }
 
-    // เริ่มเกมครั้งแรก
-    window.onload = initGame;
+    // เริ่มเกมครั้งแรก (Default 1 หลัก)
+    window.onload = () => startGame(1);
 </script>
 
 </body>
