@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>คณิตศาสตร์อัจฉริยะ v1.3.0</title>
+    <title>คณิตศาสตร์อัจฉริยะ v1.3.1</title>
     <link href="https://googleapis.com" rel="stylesheet">
-    <script src="https://jsdelivr.net"></script>
     <style>
         :root { --primary: #3498db; --success: #2ecc71; --error: #e74c3c; --carry: #fffde7; }
         body { font-family: 'Sarabun', sans-serif; background-color: #f0f4f8; display: flex; justify-content: center; padding: 20px; }
@@ -36,7 +35,7 @@
 <body>
 
 <div class="app-card">
-    <div class="version-tag">v1.3.0-Manual</div>
+    <div class="version-tag">v1.3.1-NoConfetti</div>
     <h3>🚀 ฝึกบวกเลข (ตรวจแล้วค้างหน้าจอ)</h3>
     
     <div class="difficulty-zones">
@@ -65,7 +64,6 @@
     </div>
 
     <div id="result-text" class="result-box"></div>
-    <!-- เปลี่ยนปุ่มให้เป็นสเตตัส -->
     <div id="btn-container">
         <button class="btn-check" id="main-btn" onclick="checkAnswer()">🎯 ตรวจคำตอบ</button>
     </div>
@@ -75,7 +73,6 @@
 
 <script>
     let n1, n2, ans, curD = 1, totalScore = 0, sec = 0, timer, hList = [];
-    let isChecked = false; // ตัวแปรเช็คสถานะว่าตรวจหรือยัง
 
     const ins = Array.from(document.querySelectorAll('.num-in'));
     ins.forEach((input, i) => {
@@ -89,12 +86,11 @@
     });
 
     function startGame(d) {
-        curD = d; isChecked = false;
+        curD = d;
         clearInterval(timer); sec = 0;
         document.getElementById('time-val').innerText = "0";
         document.getElementById('result-text').innerText = "";
         
-        // รีเซ็ตปุ่มตรวจคำตอบ
         const btn = document.getElementById('main-btn');
         btn.innerText = "🎯 ตรวจคำตอบ";
         btn.className = "btn-check";
@@ -130,13 +126,11 @@
         
         let uNum = parseInt(uStr);
         let isRight = (uNum === ans);
-        isChecked = true;
         clearInterval(timer);
 
         if(isRight) {
             totalScore += 10;
             document.getElementById('result-text').innerHTML = "<span style='color:green'>🎉 ถูกต้อง! +10</span>";
-            confetti({ particleCount: 100, spread: 60, origin: { y: 0.6 } });
         } else {
             totalScore -= 10; if(totalScore < 0) totalScore = 0;
             document.getElementById('result-text').innerHTML = "<span style='color:red'>❌ ผิดครับ -10</span>";
@@ -145,7 +139,6 @@
         document.getElementById('score-display').innerText = totalScore;
         addHistory(isRight, uNum);
 
-        // เปลี่ยนปุ่มให้เป็น "สุ่มโจทย์ใหม่"
         const btn = document.getElementById('main-btn');
         btn.innerText = "🎲 สุ่มโจทย์ใหม่";
         btn.className = "btn-check btn-next";
