@@ -3,27 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>คณิตศาสตร์ Turbo - ไวทันใจ</title>
+    <title>คณิตศาสตร์อัจฉริยะ v1.2.2</title>
     <link href="https://googleapis.com" rel="stylesheet">
     <script src="https://jsdelivr.net"></script>
     <style>
         :root { --primary: #3498db; --success: #2ecc71; --error: #e74c3c; --carry: #fffde7; }
         body { font-family: 'Sarabun', sans-serif; background-color: #f0f4f8; display: flex; justify-content: center; padding: 20px; }
-        .app-card { background: white; padding: 30px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 650px; }
+        .app-card { background: white; padding: 30px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 650px; position: relative; }
+        
+        /* Debug Version Tag */
+        .version-tag { position: absolute; top: 15px; right: 20px; font-size: 11px; color: #bbb; }
+
         .difficulty-zones { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; }
         .btn-mode { padding: 10px; border: 2px solid var(--primary); background: white; color: var(--primary); border-radius: 12px; cursor: pointer; font-weight: bold; flex: 1; }
         .btn-mode.active { background: var(--primary); color: white; }
+        
         .stats { display: flex; justify-content: space-around; margin-bottom: 10px; font-size: 1.4rem; font-weight: bold; color: #2c3e50; background: #eef2f7; padding: 15px; border-radius: 15px; border: 2px solid #d1d9e6; }
         #score-display { color: #f39c12; font-size: 1.8rem; }
+        
         .math-grid { display: inline-block; margin-bottom: 20px; }
         .row { display: flex; justify-content: flex-end; align-items: center; margin-bottom: 5px; }
         .label { font-weight: bold; color: #888; width: 80px; text-align: left; }
         input { width: 55px; height: 65px; text-align: center; font-size: 32px; font-weight: bold; margin: 2px; border: 2px solid #ddd; border-radius: 10px; outline: none; }
+        
         .carry-row input { background-color: var(--carry); border-color: #f1c40f; color: #d4ac0d; }
         .answer-row { border-top: 4px solid #333; margin-top: 10px; padding-top: 10px; }
         .answer-row input { background-color: #e8f5e9; border-color: var(--success); }
+        
         .btn-check { width: 100%; padding: 18px; background: var(--success); color: white; border: none; border-radius: 15px; font-size: 24px; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 5px 0 #27ae60; }
-        .btn-check:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-check:disabled { opacity: 0.5; cursor: not-allowed; transform: translateY(3px); box-shadow: none; }
+        
         .result-box { height: 45px; margin: 10px 0; font-size: 26px; font-weight: bold; }
         .history-log { margin-top: 30px; border-top: 2px dashed #ccc; padding-top: 20px; text-align: left; }
         .history-item { padding: 8px 15px; border-radius: 10px; margin-bottom: 5px; border-left: 6px solid #ccc; background: #fafafa; display: flex; justify-content: space-between; font-size: 0.85rem; }
@@ -34,17 +43,21 @@
 <body>
 
 <div class="app-card">
-    <h3>🚀 ฝึกบวกเลข (โหมดความเร็วสูง)</h3>
+    <div class="version-tag" id="debug-v">v1.2.2-Turbo</div>
+    <h3>🚀 ฝึกบวกเลขแสนสนุก</h3>
+    
     <div class="difficulty-zones">
         <button class="btn-mode" id="m1" onclick="startGame(1)">1 หลัก</button>
         <button class="btn-mode" id="m2" onclick="startGame(2)">2 หลัก</button>
         <button class="btn-mode" id="m3" onclick="startGame(3)">3 หลัก</button>
         <button class="btn-mode" id="m4" onclick="startGame(4)">4 หลัก</button>
     </div>
+
     <div class="stats">
         <span>⏱️ <span id="time-val">0</span> วิ</span>
         <span>⭐ คะแนน: <span id="score-display">0</span></span>
     </div>
+
     <div class="math-grid">
         <div class="row carry-row">
             <span class="label">ตัวทด</span>
@@ -57,14 +70,20 @@
             <input type="number" id="a5" class="num-in"><input type="number" id="a4" class="num-in"><input type="number" id="a3" class="num-in"><input type="number" id="a2" class="num-in"><input type="number" id="a1" class="num-in"><input type="number" id="a0" class="num-in">
         </div>
     </div>
+
     <div id="result-text" class="result-box"></div>
     <button class="btn-check" id="check-btn" onclick="checkAnswer()">🎯 ตรวจคำตอบ</button>
-    <div class="history-log"><strong>🕒 ประวัติ 10 ข้อ:</strong><div id="log-list"></div></div>
+
+    <div class="history-log"><strong>🕒 ประวัติล่าสุด:</strong><div id="log-list"></div></div>
 </div>
 
 <script>
+    const APP_VERSION = "1.2.2-Turbo";
+    console.log("App Math Start - Version: " + APP_VERSION);
+
     let n1, n2, ans, curD = 1, totalScore = 0, sec = 0, timer, hList = [];
 
+    // ระบบ Input Focus
     const ins = Array.from(document.querySelectorAll('.num-in'));
     ins.forEach((input, i) => {
         input.addEventListener('input', (e) => {
@@ -83,17 +102,21 @@
         document.getElementById('check-btn').disabled = false;
         document.querySelectorAll('.btn-mode').forEach(b => b.classList.remove('active'));
         document.getElementById('m'+d).classList.add('active');
-        document.querySelectorAll('input').forEach(el => { if(!el.readOnly || el.style.opacity !== "0") el.value = ""; });
+        
+        // ล้างช่องทั้งหมด
+        document.querySelectorAll('input').forEach(el => { 
+            if(!el.readOnly || el.style.opacity !== "0") el.value = ""; 
+        });
 
         let min = Math.pow(10, d-1), max = Math.pow(10, d)-1;
         n1 = Math.floor(Math.random()*(max-min+1)+min);
         n2 = Math.floor(Math.random()*(max-min+1)+min);
         ans = n1 + n2;
-        render('q1_', n1); render('q2_', n2);
+        renderRows('q1_', n1); renderRows('q2_', n2);
         timer = setInterval(() => { sec++; document.getElementById('time-val').innerText = sec; }, 1000);
     }
 
-    function render(p, num) {
+    function renderRows(p, num) {
         let digits = num.toString().split('').reverse();
         for(let i=0; i<=5; i++) {
             let el = document.getElementById(p+i);
@@ -110,7 +133,7 @@
         let isRight = (uNum === ans);
         document.getElementById('check-btn').disabled = true;
 
-        // **แก้ไข: คำนวณและแสดงคะแนน "ทันที"**
+        // อัปเดตคะแนนทันที
         if(isRight) {
             totalScore += 10;
             document.getElementById('result-text').innerHTML = "<span style='color:green'>🎉 ถูกต้อง! +10</span>";
@@ -124,7 +147,7 @@
         document.getElementById('score-display').innerText = totalScore;
         addHistory(isRight, uNum);
 
-        // **แก้ไข: ลดเวลารอเหลือ 0.8 วินาที (Turbo)**
+        // รอเพียง 0.8 วิ แล้วสุ่มข้อใหม่ (Turbo)
         setTimeout(() => { startGame(curD); }, 800);
     }
 
