@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ฝึกบวกเลข - ตัวทดตรงหลัก</title>
+    <title>โปรแกรมฝึกบวกเลข - ตัวทดขนาดใหญ่</title>
     <link href="https://googleapis.com" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #f0f7ff;
-            --primary: #4a90e2;
-            --success: #4caf50;
-            --carry-bg: #fff9c4;
-            --carry-border: #fbc02d;
+            --bg-color: #f4f7f6;
+            --primary: #3498db;
+            --success: #2ecc71;
+            --carry-color: #f1c40f;
         }
 
         body {
@@ -20,59 +19,50 @@
             display: flex;
             justify-content: center;
             padding: 20px;
-            margin: 0;
         }
 
         .app-card {
             background: white;
             padding: 30px;
-            border-radius: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             text-align: center;
             width: 100%;
-            max-width: 550px;
+            max-width: 600px;
         }
 
         .difficulty-zones {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-            margin-bottom: 25px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
         }
 
         .btn-mode {
-            padding: 12px;
+            padding: 10px 20px;
             border: 2px solid var(--primary);
             background: white;
             color: var(--primary);
-            border-radius: 15px;
+            border-radius: 12px;
             cursor: pointer;
             font-weight: bold;
-            transition: 0.3s;
         }
 
-        .btn-mode:hover {
-            background: var(--primary);
-            color: white;
-        }
+        .btn-mode:hover { background: var(--primary); color: white; }
 
         .stats {
             display: flex;
             justify-content: space-around;
-            background: #e3f2fd;
-            padding: 15px;
-            border-radius: 20px;
-            margin-bottom: 30px;
-            font-size: 1.2rem;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
             font-weight: bold;
-            color: #1565c0;
+            color: #555;
         }
 
-        /* ตารางคณิตศาสตร์ */
-        .math-container {
+        /* ตารางคำนวณ */
+        .math-grid {
             display: inline-block;
-            background: #fff;
-            padding: 10px;
+            margin-bottom: 20px;
         }
 
         .row {
@@ -83,81 +73,73 @@
         }
 
         .label {
-            font-size: 16px;
             font-weight: bold;
-            color: #999;
-            width: 70px;
+            color: #888;
+            width: 80px;
             text-align: left;
         }
 
+        /* กำหนดขนาด Input ทุกช่องให้เท่ากัน */
         input {
-            width: 50px;
-            height: 60px;
+            width: 55px;
+            height: 65px;
             text-align: center;
-            font-size: 30px;
+            font-size: 32px;
             font-weight: bold;
-            margin: 3px;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
+            margin: 2px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
             outline: none;
         }
 
-        /* ช่องตัวทด: ขยับให้ตรงหลัก 10 ขึ้นไป */
+        /* ตกแต่งช่องตัวทด */
         .carry-row input {
-            height: 40px;
-            width: 40px;
-            font-size: 20px;
-            background: var(--carry-bg);
-            border: 2px dashed var(--carry-border);
-            color: #e65100;
+            background-color: #fffde7;
+            border-color: var(--carry-color);
+            color: #d4ac0d;
         }
 
+        /* ช่องว่างเพื่อดันตัวทดให้ตรงหลัก (เยื้องซ้าย 1 ช่อง) */
         .spacer {
-            width: 56px; /* ขนาดเท่ากับ input หลักหน่วย + margin */
+            width: 61px; /* ขนาด input 55px + margin 6px */
         }
 
         .answer-row {
-            border-top: 4px solid #444;
+            border-top: 4px solid #333;
             margin-top: 10px;
             padding-top: 10px;
         }
 
         .answer-row input {
+            background-color: #e8f5e9;
             border-color: var(--success);
-            background: #f1f8e9;
         }
 
         .btn-check {
             width: 100%;
-            padding: 18px;
+            padding: 15px;
             background: var(--success);
             color: white;
             border: none;
-            border-radius: 20px;
+            border-radius: 15px;
             font-size: 22px;
             font-weight: bold;
             cursor: pointer;
-            margin-top: 20px;
-            box-shadow: 0 4px 0 #388e3c;
-        }
-
-        .btn-check:active {
-            transform: translateY(4px);
-            box-shadow: none;
+            margin-top: 10px;
         }
 
         .result-box {
-            height: 50px;
-            margin-top: 20px;
-            font-size: 26px;
+            height: 40px;
+            margin: 15px 0;
+            font-size: 24px;
         }
     </style>
 </head>
 <body>
 
 <div class="app-card">
-    <h2>✍️ ฝึกบวกเลข (มีตัวทด)</h2>
-    
+    <h3>✍️ แบบฝึกหัดการบวกเลข</h3>
+
     <div class="difficulty-zones">
         <button class="btn-mode" onclick="startGame(1)">1 หลัก</button>
         <button class="btn-mode" onclick="startGame(2)">2 หลัก</button>
@@ -166,19 +148,20 @@
     </div>
 
     <div class="stats">
-        <span>⏱️ <span id="time">0</span> วินาที</span>
-        <span>🏆 <span id="score">0</span> คะแนน</span>
+        <span>⏱️ เวลา: <span id="time">0</span> วิ</span>
+        <span>⭐ คะแนน: <span id="score">0</span></span>
     </div>
 
-    <div class="math-container">
-        <!-- แถวตัวทด: เว้นว่างหลักหน่วย เพื่อให้ตรงกับหลักสิบขึ้นไป -->
+    <div class="math-grid">
+        <!-- แถวตัวทด: มี 5 ช่อง และเยื้องซ้าย 1 หลัก -->
         <div class="row carry-row">
             <span class="label">ตัวทด</span>
-            <input type="number" id="c4" placeholder="10k">
-            <input type="number" id="c3" placeholder="1k">
-            <input type="number" id="c2" placeholder="100">
-            <input type="number" id="c1" placeholder="10">
-            <div class="spacer"></div> <!-- ช่องว่างเหนือหลักหน่วย -->
+            <input type="number" id="c5" maxlength="1">
+            <input type="number" id="c4" maxlength="1">
+            <input type="number" id="c3" maxlength="1">
+            <input type="number" id="c2" maxlength="1">
+            <input type="number" id="c1" maxlength="1">
+            <div class="spacer"></div> <!-- ดันให้ c1 ตรงกับหลักสิบ -->
         </div>
 
         <!-- แถวโจทย์ -->
@@ -202,12 +185,12 @@
         <!-- แถวคำตอบ -->
         <div class="row answer-row">
             <span class="label">คำตอบ</span>
-            <input type="number" id="a5">
-            <input type="number" id="a4">
-            <input type="number" id="a3">
-            <input type="number" id="a2">
-            <input type="number" id="a1">
-            <input type="number" id="a0">
+            <input type="number" id="a5" maxlength="1">
+            <input type="number" id="a4" maxlength="1">
+            <input type="number" id="a3" maxlength="1">
+            <input type="number" id="a2" maxlength="1">
+            <input type="number" id="a1" maxlength="1">
+            <input type="number" id="a0" maxlength="1">
         </div>
     </div>
 
@@ -215,7 +198,6 @@
     <button class="btn-check" onclick="checkAnswer()">🎯 ตรวจคำตอบ</button>
 </div>
 
-<!-- เสียงประกอบ -->
 <audio id="sound-correct" src="https://soundjay.com"></audio>
 
 <script>
@@ -224,15 +206,14 @@
     let timer = 0;
     let timerInt;
 
-    // จำกัดการกรอก 1 ตัว และ auto-focus
+    // ระบบ Input ตัวเดียวและข้ามช่องอัตโนมัติ
     document.querySelectorAll('input[type="number"]').forEach(input => {
         input.addEventListener('input', function() {
             if (this.value.length > 1) this.value = this.value.slice(-1);
-            if (this.value !== "") {
-                // หาช่อง input ถัดไปในแถวเดียวกัน หรือข้ามไปแถวคำตอบ
-                let inputs = Array.from(document.querySelectorAll('input[type="number"]'));
-                let index = inputs.indexOf(this);
-                if (index < inputs.length - 1) inputs[index + 1].focus();
+            if (this.value) {
+                const allInputs = Array.from(document.querySelectorAll('input[type="number"]'));
+                const index = allInputs.indexOf(this);
+                if (index < allInputs.length - 1) allInputs[index + 1].focus();
             }
         });
     });
@@ -243,20 +224,20 @@
         document.getElementById('time').innerText = timer;
         document.getElementById('result').innerText = "";
         
-        // ล้างค่าทุกช่อง
+        // ล้างข้อมูลทุกช่อง (ตัวทด + คำตอบ)
         document.querySelectorAll('input').forEach(el => {
             if(!el.readOnly) el.value = "";
         });
 
-        // สุ่มเลข
+        // สุ่มโจทย์
         let min = Math.pow(10, digit - 1);
         let max = Math.pow(10, digit) - 1;
         let n1 = Math.floor(Math.random() * (max - min + 1) + min);
         let n2 = Math.floor(Math.random() * (max - min + 1) + min);
         currentAns = n1 + n2;
 
-        distribute('q1_', n1);
-        distribute('q2_', n2);
+        fill('q1_', n1);
+        fill('q2_', n2);
 
         timerInt = setInterval(() => {
             timer++;
@@ -264,32 +245,30 @@
         }, 1000);
     }
 
-    function distribute(prefix, num) {
+    function fill(prefix, num) {
         for(let i=0; i<=4; i++) document.getElementById(prefix + i).value = "";
-        let arr = num.toString().split('').reverse();
-        arr.forEach((d, i) => document.getElementById(prefix + i).value = d);
+        let s = num.toString().split('').reverse();
+        s.forEach((v, i) => document.getElementById(prefix + i).value = v);
     }
 
     function checkAnswer() {
-        let userStr = "";
+        let ansStr = "";
         for(let i=5; i>=0; i--) {
-            let val = document.getElementById('a' + i).value;
-            if(val !== "") userStr += val;
+            ansStr += document.getElementById('a' + i).value;
         }
         
-        if (parseInt(userStr) === currentAns) {
-            document.getElementById('result').innerHTML = "<span style='color:green'>🎉 ถูกต้อง! เก่งมาก</span>";
+        if (parseInt(ansStr) === currentAns) {
+            document.getElementById('result').innerHTML = "<span style='color:green'>🎉 ถูกต้อง!</span>";
             document.getElementById('sound-correct').play();
             score += 10;
             document.getElementById('score').innerText = score;
             clearInterval(timerInt);
         } else {
-            document.getElementById('result').innerHTML = "<span style='color:red'>❌ ยังไม่ถูก ลองอีกครั้งนะ</span>";
+            document.getElementById('result').innerHTML = "<span style='color:red'>❌ ลองใหม่อีกครั้ง</span>";
         }
     }
 
     window.onload = () => startGame(1);
 </script>
-
 </body>
 </html>
