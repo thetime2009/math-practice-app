@@ -3,42 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>คณิตศาสตร์อัจฉริยะ v1.5.4</title>
+    <title>คณิตศาสตร์อัจฉริยะ v1.6.0</title>
     <link href="https://googleapis.com" rel="stylesheet">
     <style>
         :root { --primary: #3498db; --success: #2ecc71; --error: #e74c3c; --carry: #fffde7; --level-color: #9b59b6; --random-all: #f39c12; }
         body { font-family: 'Sarabun', sans-serif; background-color: #f0f4f8; margin: 0; padding: 10px; display: flex; justify-content: center; }
         .app-card { background: white; padding: 20px 15px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 480px; position: relative; }
         .version-tag { position: absolute; top: 12px; right: 18px; font-size: 10px; color: #ccc; }
-        .level-badge { display: inline-block; background: var(--level-color); color: white; padding: 4px 18px; border-radius: 20px; font-weight: bold; margin-bottom: 15px; font-size: 14px; }
-        .difficulty-zones { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 18px; }
+        .level-badge { display: inline-block; background: var(--level-color); color: white; padding: 4px 18px; border-radius: 20px; font-weight: bold; margin-bottom: 10px; font-size: 14px; }
+        
+        .difficulty-zones { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px; }
         .btn-mode { padding: 10px 2px; border: 2px solid var(--primary); background: white; color: var(--primary); border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 12px; }
         .btn-mode.active { background: var(--primary); color: white; }
-        .btn-random-mode { border-color: var(--random-all); color: var(--random-all); }
-        .btn-random-mode.active { background: var(--random-all); color: white; }
-        .stats { display: flex; justify-content: space-around; margin-bottom: 15px; font-size: 1.2rem; font-weight: bold; background: #f8f9fa; padding: 12px; border-radius: 18px; border: 1px solid #e9ecef; }
         
+        /* ปุ่มพิเศษสำหรับเพิ่มแถว */
+        .extra-controls { display: flex; gap: 6px; margin-bottom: 18px; }
+        .btn-extra { flex: 1; padding: 8px; border: 2px dashed #95a5a6; background: #fdfdfd; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 13px; color: #7f8c8d; }
+        .btn-extra.active { border-style: solid; border-color: #9b59b6; color: #9b59b6; background: #f4ecf7; }
+
+        .stats { display: flex; justify-content: space-around; margin-bottom: 15px; font-size: 1.2rem; font-weight: bold; background: #f8f9fa; padding: 12px; border-radius: 18px; border: 1px solid #e9ecef; }
         .math-table { display: grid; grid-template-columns: 55px 1fr; gap: 4px; align-items: center; margin-bottom: 15px; }
         .row-label { font-weight: bold; color: #bbb; font-size: 11px; text-align: left; }
         .digit-group { display: grid; grid-template-columns: repeat(6, 1fr); gap: 3px; justify-items: end; }
         input { width: 100%; max-width: 44px; height: 52px; text-align: center; font-size: 24px; font-weight: bold; border: 2px solid #eee; border-radius: 10px; outline: none; box-sizing: border-box; }
-        .carry-row input { height: 38px; background-color: var(--carry); border: 2px solid #f1c40f; color: #d4ac0d; font-size: 16px; }
+        .carry-row input { height: 38px; background-color: var(--carry); border: 2px solid #f1c40f; color: #d4ac0d; }
+        
         .answer-row { border-top: 3px solid #444; padding-top: 10px; margin-top: 5px; grid-column: 1 / span 2; display: grid; grid-template-columns: 55px 1fr; gap: 4px; align-items: center; }
         .answer-row input { background-color: #f1fbf3; border-color: var(--success); }
 
         .btn-check { width: 100%; padding: 16px; background: var(--success); color: white; border: none; border-radius: 18px; font-size: 22px; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 5px 0 #27ae60; }
-        
-        .result-box { min-height: 40px; margin: 8px 0; font-size: 18px; font-weight: bold; line-height: 1.4; }
+        .result-box { min-height: 40px; margin: 8px 0; font-size: 18px; font-weight: bold; }
         .thai-read { font-size: 16px; color: #555; font-weight: normal; margin-top: 5px; display: block; background: #fff9c4; padding: 5px; border-radius: 8px; }
-
         .history-log { margin-top: 20px; border-top: 1px dashed #ddd; padding-top: 15px; text-align: left; }
-        .history-item { padding: 8px 15px; border-radius: 10px; margin-bottom: 6px; border-left: 5px solid #ccc; background: #fdfdfd; display: flex; justify-content: space-between; font-size: 12px; }
+        .history-item { padding: 8px 15px; border-radius: 10px; margin-bottom: 6px; border-left: 5px solid #ccc; background: #fdfdfd; display: flex; justify-content: space-between; font-size: 11px; }
     </style>
 </head>
 <body>
 
 <div class="app-card">
-    <div class="version-tag">v1.5.4-ThaiReader</div>
+    <div class="version-tag">v1.6.0-TripleRow</div>
     <div class="level-badge" id="level-tag">🏆 Level 0</div>
     
     <div class="difficulty-zones">
@@ -47,12 +50,17 @@
         <button class="btn-mode" id="m3" onclick="selectMode(3)">3 หลัก</button>
         <button class="btn-mode" id="m4" onclick="selectMode(4)">4 หลัก</button>
         <button class="btn-mode" id="m5" onclick="selectMode(5)">5 หลัก</button>
-        <button class="btn-mode btn-random-mode" id="m0" onclick="selectMode(0)">🔀 สุ่ม</button>
+        <button class="btn-mode" id="m0" onclick="selectMode(0)" style="border-color:var(--random-all); color:var(--random-all);">🔀 สุ่ม</button>
+    </div>
+
+    <div class="extra-controls">
+        <button class="btn-extra active" id="row-2-btn" onclick="setRowCount(2)">บวก 2 แถว</button>
+        <button class="btn-extra" id="row-3-btn" onclick="setRowCount(3)">➕ เพิ่มแถว (3 แถว)</button>
     </div>
 
     <div class="stats">
         <span>⏱️ <span id="time-val">0</span> วิ</span>
-        <span>⭐คะแนนรวม <span id="score-display" style="color:#f39c12">0</span></span>
+        <span>⭐ <span id="score-display" style="color:#f39c12">0</span></span>
     </div>
 
     <div class="math-table">
@@ -61,13 +69,18 @@
             <input type="number" id="c5" class="num-in"><input type="number" id="c4" class="num-in"><input type="number" id="c3" class="num-in"><input type="number" id="c2" class="num-in"><input type="number" id="c1" class="num-in">
             <div style="width: 100%; max-width: 44px; height: 38px; visibility: hidden;"></div> 
         </div>
-        <div class="row-label">ตัวตั้ง</div>
+        <div class="row-label">ตัวตั้ง 1</div>
         <div class="digit-group">
             <input type="text" id="q1_5" readonly style="opacity:0"><input type="text" id="q1_4" readonly><input type="text" id="q1_3" readonly><input type="text" id="q1_2" readonly><input type="text" id="q1_1" readonly><input type="text" id="q1_0" readonly>
         </div>
-        <div class="row-label">ตัวบวก</div>
+        <div class="row-label">ตัวบวก 2</div>
         <div class="digit-group">
             <input type="text" id="q2_5" readonly style="opacity:0"><input type="text" id="q2_4" readonly><input type="text" id="q2_3" readonly><input type="text" id="q2_2" readonly><input type="text" id="q2_1" readonly><input type="text" id="q2_0" readonly>
+        </div>
+        <!-- แถวที่ 3 (ซ่อน/แสดง) -->
+        <div class="row-label q3-ui" style="display:none;">ตัวบวก 3</div>
+        <div class="digit-group q3-ui" style="display:none;">
+            <input type="text" id="q3_5" readonly style="opacity:0"><input type="text" id="q3_4" readonly><input type="text" id="q3_3" readonly><input type="text" id="q3_2" readonly><input type="text" id="q3_1" readonly><input type="text" id="q3_0" readonly>
         </div>
         <div class="answer-row">
             <div class="row-label">คำตอบ</div>
@@ -79,23 +92,19 @@
 
     <div id="result-text" class="result-box"></div>
     <button class="btn-check" id="main-btn" onclick="checkAnswer()">🎯 ตรวจคำตอบ</button>
-    <div class="history-log"><strong>🕒 ประวัติ 10 ข้อล่าสุด:</strong><div id="log-list"></div></div>
+    <div class="history-log"><strong>🕒 ประวัติล่าสุด:</strong><div id="log-list"></div></div>
 </div>
 
 <script>
-    let n1, n2, ans, selectedMode = 1, curD = 1, totalScore = 0, sec = 0, timer, hList = [];
-    let lastLvl = 0;
+    let n1, n2, n3 = 0, ans, selectedMode = 1, curD = 1, totalScore = 0, sec = 0, timer, hList = [], rowCount = 2;
 
-    // ฟังก์ชันแปลงเลขเป็นคำอ่านภาษาไทย
     function thaiRead(num) {
         if (num === 0) return "ศูนย์";
         const units = ["", "สิบ", "ร้อย", "พัน", "หมื่น", "แสน", "ล้าน"];
         const digits = ["ศูนย์", "หนึ่ง", "สอง", "สาม", "สี่", "ห้า", "หก", "เจ็ด", "แปด", "เก้า"];
-        let str = num.toString();
-        let result = "";
+        let str = num.toString(), result = "";
         for (let i = 0; i < str.length; i++) {
-            let d = parseInt(str[i]);
-            let pos = str.length - i - 1;
+            let d = parseInt(str[i]), pos = str.length - i - 1;
             if (d !== 0) {
                 if (pos === 1 && d === 1) result += "";
                 else if (pos === 1 && d === 2) result += "ยี่";
@@ -118,22 +127,35 @@
         });
     });
 
+    function setRowCount(count) {
+        rowCount = count;
+        document.getElementById('row-2-btn').classList.toggle('active', count === 2);
+        document.getElementById('row-3-btn').classList.toggle('active', count === 3);
+        document.querySelectorAll('.q3-ui').forEach(el => el.style.display = count === 3 ? 'grid' : 'none');
+        startGame(selectedMode === 0 ? Math.floor(Math.random() * 5) + 1 : selectedMode);
+    }
+
     function selectMode(d) { selectedMode = d; startGame(d === 0 ? Math.floor(Math.random() * 5) + 1 : d); }
 
     function startGame(d) {
         curD = d; clearInterval(timer); sec = 0;
-        document.getElementById('time-val').innerText = "0";
+        document.getElementById('timer-val')?.innerText && (document.getElementById('timer-val').innerText = "0");
         document.getElementById('result-text').innerHTML = "";
         const btn = document.getElementById('main-btn');
         btn.innerText = "🎯 ตรวจคำตอบ"; btn.onclick = checkAnswer;
         document.querySelectorAll('.btn-mode').forEach(b => b.classList.remove('active'));
         document.getElementById('m' + selectedMode).classList.add('active');
         document.querySelectorAll('input').forEach(el => { if(!el.readOnly || el.style.opacity !== "0") el.value = ""; });
+        
         let min = Math.pow(10, d-1), max = Math.pow(10, d)-1;
         n1 = Math.floor(Math.random()*(max-min+1)+min);
         n2 = Math.floor(Math.random()*(max-min+1)+min);
-        ans = n1 + n2;
+        n3 = rowCount === 3 ? Math.floor(Math.random()*(max-min+1)+min) : 0;
+        ans = n1 + n2 + n3;
+        
         render('q1_', n1); render('q2_', n2);
+        if(rowCount === 3) render('q3_', n3);
+        
         timer = setInterval(() => { sec++; document.getElementById('time-val').innerText = sec; }, 1000);
     }
 
@@ -149,20 +171,18 @@
         let uStr = "";
         for(let i=5; i>=0; i--) { let v = document.getElementById('a'+i).value; if(v!=="") uStr += v; }
         if(uStr === "") return;
-        let uNum = parseInt(uStr);
-        let isRight = (uNum === ans);
-        let point = curD * 2;
+        let uNum = parseInt(uStr), isRight = (uNum === ans);
+        let point = (curD * 2) * (rowCount === 3 ? 2 : 1);
         clearInterval(timer);
 
-        let resHTML = isRight ? `<span style='color:green'>ถูกต้องนะคร๊าบบ! +${point}</span>` : `<span style='color:red'>ผิดครับ งัว -${point}</span>`;
-        resHTML += `<div class="thai-read">คำตอบคือ: ${thaiRead(ans)}</div>`;
+        let resHTML = isRight ? `<span style='color:green'>ถูกต้อง! +${point}</span>` : `<span style='color:red'>ผิดครับ -${point}</span>`;
+        resHTML += `<div class="thai-read">คำอ่าน: ${thaiRead(ans)}</div>`;
         document.getElementById('result-text').innerHTML = resHTML;
 
         if(isRight) totalScore += point;
         else { totalScore -= point; if(totalScore < -999) totalScore = -999; }
 
         document.getElementById('score-display').innerText = totalScore;
-        document.getElementById('score-display').style.color = totalScore < 0 ? 'red' : '#f39c12';
         document.getElementById('level-tag').innerText = `🏆 Level ${Math.max(0, Math.floor(totalScore/100))}`;
         
         addHistory(isRight, uNum);
@@ -172,7 +192,8 @@
 
     function addHistory(isRight, uN) {
         const list = document.getElementById('log-list');
-        hList.unshift({ t: `${n1}+${n2}=${ans}`, u: uN, ok: isRight });
+        let taskText = `${n1} + ${n2}${rowCount === 3 ? ' + ' + n3 : ''} = ${ans}`;
+        hList.unshift({ t: taskText, u: uN, ok: isRight });
         if(hList.length > 10) hList.pop();
         list.innerHTML = "";
         hList.forEach(i => {
