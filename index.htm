@@ -78,7 +78,7 @@
 
     <div style="display:flex; justify-content:space-around; font-weight:bold; background:#f8f9fa; padding:10px; border-radius:15px; margin-bottom:10px;">
         <span>⏱️ <span id="time-val">0</span> วิ</span>
-        <span>⭐ <span id="score-display">0</span></span>
+        <span>⭐คะแนนรวม <span id="score-display">0</span></span>
     </div>
 
     <div class="math-table" id="math-grid">
@@ -197,7 +197,7 @@
         clearInterval(timer);
 
         totalScore += isRight ? point : -point;
-        document.getElementById('result-text').innerHTML = (isRight ? `<span style='color:green'>ถูกต้อง! +${point}</span>` : `<span style='color:red'>ผิดครับ -${point}</span>`) + `<div class="thai-read">คำอ่าน: ${thaiRead(ans)}</div>`;
+        document.getElementById('result-text').innerHTML = (isRight ? `<span style='color:green'>ถูกต้อง! +${point}</span>` : `<span style='color:red'>ผิดครับ -${point}</span>`) + `<div class="thai-read">คำตอบคือ: ${thaiRead(ans)}</div>`;
         
         document.getElementById('score-display').innerText = totalScore;
         document.getElementById('level-tag').innerText = `🏆 Level ${Math.max(0, Math.floor(totalScore/100))}`;
