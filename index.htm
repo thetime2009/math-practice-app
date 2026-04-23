@@ -3,43 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>คณิตศาสตร์อัจฉริยะ - ฝึกบวกเลข</title>
+    <title>คณิตศาสตร์อัจฉริยะ - ปรับปรุงระบบคะแนน</title>
     <link href="https://googleapis.com" rel="stylesheet">
-    <!-- Library จุดพลุ -->
     <script src="https://jsdelivr.net"></script>
     
     <style>
         :root { --primary: #3498db; --success: #2ecc71; --error: #e74c3c; --carry: #fffde7; }
         body { font-family: 'Sarabun', sans-serif; background-color: #f0f4f8; display: flex; justify-content: center; padding: 20px; }
         .app-card { background: white; padding: 30px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 650px; }
-        
         .difficulty-zones { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
-        .btn-mode { padding: 10px 15px; border: 2px solid var(--primary); background: white; color: var(--primary); border-radius: 12px; cursor: pointer; font-weight: bold; transition: 0.2s; }
-        .btn-mode:hover { background: var(--primary); color: white; }
-
-        .stats { display: flex; justify-content: space-around; margin-bottom: 10px; font-size: 1.3rem; font-weight: bold; color: #2c3e50; background: #eef2f7; padding: 15px; border-radius: 15px; }
-        .history-summary { font-size: 1rem; color: #555; margin-bottom: 20px; font-weight: bold; }
-
+        .btn-mode { padding: 10px 15px; border: 2px solid var(--primary); background: white; color: var(--primary); border-radius: 12px; cursor: pointer; font-weight: bold; }
+        .stats { display: flex; justify-content: space-around; margin-bottom: 10px; font-size: 1.3rem; font-weight: bold; color: #2c3e50; background: #eef2f7; padding: 15px; border-radius: 15px; border: 2px solid #d1d9e6; }
+        #score-display { color: #f39c12; font-size: 1.5rem; text-shadow: 1px 1px 0px #fff; }
         .math-grid { display: inline-block; margin-bottom: 20px; }
         .row { display: flex; justify-content: flex-end; align-items: center; margin-bottom: 5px; }
         .label { font-weight: bold; color: #888; width: 80px; text-align: left; }
-        
-        /* ขนาด Input เท่ากันทุกช่อง */
         input { width: 55px; height: 65px; text-align: center; font-size: 32px; font-weight: bold; margin: 2px; border: 2px solid #ddd; border-radius: 10px; outline: none; }
-        
         .carry-row input { background-color: var(--carry); border-color: #f1c40f; color: #d4ac0d; }
         .answer-row { border-top: 4px solid #333; margin-top: 10px; padding-top: 10px; }
         .answer-row input { background-color: #e8f5e9; border-color: var(--success); }
-        
-        .btn-check { width: 100%; padding: 15px; background: var(--success); color: white; border: none; border-radius: 15px; font-size: 22px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.2s; box-shadow: 0 4px 0 #27ae60; }
-        .btn-check:active { transform: scale(0.98); box-shadow: none; }
-        
+        .btn-check { width: 100%; padding: 15px; background: var(--success); color: white; border: none; border-radius: 15px; font-size: 22px; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 0 #27ae60; }
         .result-box { height: 45px; margin: 10px 0; font-size: 26px; font-weight: bold; }
-
-        /* ส่วนประวัติ */
         .history-log { margin-top: 30px; border-top: 2px dashed #ccc; padding-top: 20px; text-align: left; }
         .log-container { max-height: 250px; overflow-y: auto; margin-top: 10px; }
-        .history-item { padding: 12px; border-radius: 10px; margin-bottom: 8px; font-size: 1rem; border-left: 6px solid #ccc; background: #fafafa; display: flex; justify-content: space-between; align-items: center; }
+        .history-item { padding: 12px; border-radius: 10px; margin-bottom: 8px; border-left: 6px solid #ccc; background: #fafafa; display: flex; justify-content: space-between; }
         .item-correct { border-left-color: var(--success); background: #f1fbf3; }
         .item-wrong { border-left-color: var(--error); background: #fdf2f2; }
     </style>
@@ -47,7 +34,7 @@
 <body>
 
 <div class="app-card" id="main-card">
-    <h2>✍️ แบบฝึกหัดคณิตศาสตร์</h2>
+    <h2>✍️ ฝึกบวกเลข (ระบบคะแนนใหม่)</h2>
 
     <div class="difficulty-zones">
         <button class="btn-mode" onclick="startGame(1)">1 หลัก</button>
@@ -57,161 +44,108 @@
     </div>
 
     <div class="stats">
-        <span>⏱️ <span id="time">0</span> วิ</span>
+        <span>⏱️ <span id="timer-text">0</span> วิ</span>
         <span>⭐ คะแนน: <span id="score-display">0</span></span>
     </div>
     
-    <div class="history-summary">
-        📊 สรุป: ทำไป <span id="total-tasks">0</span> ข้อ (ถูก <span id="total-correct" style="color:green">0</span> | ผิด <span id="total-wrong" style="color:red">0</span>)
+    <div style="margin-bottom:15px; color:#666;">
+        📊 ถูก: <span id="c-count" style="color:green">0</span> | ผิด: <span id="w-count" style="color:red">0</span>
     </div>
 
     <div class="math-grid">
-        <!-- ตัวทด (6 ช่อง ตรงหลัก) -->
         <div class="row carry-row">
             <span class="label">ตัวทด</span>
-            <input type="number" id="c5" class="num-in">
-            <input type="number" id="c4" class="num-in">
-            <input type="number" id="c3" class="num-in">
-            <input type="number" id="c2" class="num-in">
-            <input type="number" id="c1" class="num-in">
-            <input type="number" id="c0" class="num-in">
+            <input type="number" id="c5" class="num-in"><input type="number" id="c4" class="num-in"><input type="number" id="c3" class="num-in"><input type="number" id="c2" class="num-in"><input type="number" id="c1" class="num-in"><input type="number" id="c0" class="num-in">
         </div>
-        <!-- โจทย์ -->
         <div class="row"><span class="label">ตัวตั้ง</span><input type="text" id="q1_5" readonly style="opacity:0"><input type="text" id="q1_4" readonly><input type="text" id="q1_3" readonly><input type="text" id="q1_2" readonly><input type="text" id="q1_1" readonly><input type="text" id="q1_0" readonly></div>
         <div class="row"><span class="label">ตัวบวก</span><input type="text" id="q2_5" readonly style="opacity:0"><input type="text" id="q2_4" readonly><input type="text" id="q2_3" readonly><input type="text" id="q2_2" readonly><input type="text" id="q2_1" readonly><input type="text" id="q2_0" readonly></div>
-        <!-- คำตอบ -->
         <div class="row answer-row">
             <span class="label">คำตอบ</span>
-            <input type="number" id="a5" class="num-in">
-            <input type="number" id="a4" class="num-in">
-            <input type="number" id="a3" class="num-in">
-            <input type="number" id="a2" class="num-in">
-            <input type="number" id="a1" class="num-in">
-            <input type="number" id="a0" class="num-in">
+            <input type="number" id="a5" class="num-in"><input type="number" id="a4" class="num-in"><input type="number" id="a3" class="num-in"><input type="number" id="a2" class="num-in"><input type="number" id="a1" class="num-in"><input type="number" id="a0" class="num-in">
         </div>
     </div>
 
     <div id="result-msg" class="result-box"></div>
-    <button class="btn-check" onclick="processAnswer()">🎯 ตรวจคำตอบ</button>
+    <button class="btn-check" onclick="checkNow()">🎯 ตรวจคำตอบ</button>
 
     <div class="history-log">
-        <strong>🕒 ประวัติการเล่น</strong>
+        <strong>🕒 ประวัติ</strong>
         <div id="log-items" class="log-container"></div>
     </div>
 </div>
 
-<audio id="sound-win" src="https://soundjay.com"></audio>
-
 <script>
-    let n1 = 0, n2 = 0, targetAns = 0;
-    let score = 0, total = 0, correct = 0, wrong = 0;
-    let timerSeconds = 0, timerActive;
+    let n1 = 0, n2 = 0, ans = 0, myScore = 0, tCount = 0, cCount = 0, wCount = 0;
+    let sec = 0, clock;
 
-    // ระบบจัดการ Input (พิมพ์เลขเดียวข้ามช่อง / ลบถอยหลัง)
-    const allInputs = Array.from(document.querySelectorAll('.num-in'));
-    allInputs.forEach((input, index) => {
-        input.addEventListener('input', (e) => {
+    // ระบบ Input
+    const boxes = Array.from(document.querySelectorAll('.num-in'));
+    boxes.forEach((box, i) => {
+        box.addEventListener('input', (e) => {
             if (e.target.value.length > 1) e.target.value = e.target.value.slice(-1);
-            if (e.target.value && index < allInputs.length - 1) allInputs[index + 1].focus();
+            if (e.target.value && i < boxes.length - 1) boxes[i+1].focus();
         });
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Backspace' && !e.target.value && index > 0) allInputs[index - 1].focus();
+        box.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' && !e.target.value && i > 0) boxes[i-1].focus();
         });
     });
 
-    function startGame(digit) {
-        clearInterval(timerActive);
-        timerSeconds = 0;
-        document.getElementById('time').innerText = "0";
+    function startGame(d) {
+        clearInterval(clock);
+        sec = 0;
+        document.getElementById('timer-text').innerText = "0";
         document.getElementById('result-msg').innerText = "";
-        
-        // ล้างช่องตัวทดและคำตอบ
-        document.querySelectorAll('input').forEach(el => {
-            if(!el.readOnly || el.style.opacity !== "0") el.value = "";
-        });
+        document.querySelectorAll('input').forEach(el => { if(!el.readOnly || el.style.opacity !== "0") el.value = ""; });
 
-        // สุ่มตัวเลขตามหลัก
-        let min = Math.pow(10, digit - 1);
-        let max = Math.pow(10, digit) - 1;
-        n1 = Math.floor(Math.random() * (max - min + 1) + min);
-        n2 = Math.floor(Math.random() * (max - min + 1) + min);
-        targetAns = n1 + n2;
+        let min = Math.pow(10, d-1), max = Math.pow(10, d)-1;
+        n1 = Math.floor(Math.random()*(max-min+1)+min);
+        n2 = Math.floor(Math.random()*(max-min+1)+min);
+        ans = n1 + n2;
 
-        renderTask('q1_', n1);
-        renderTask('q2_', n2);
-
-        timerActive = setInterval(() => {
-            timerSeconds++;
-            document.getElementById('time').innerText = timerSeconds;
-        }, 1000);
+        render('q1_', n1); render('q2_', n2);
+        clock = setInterval(() => { sec++; document.getElementById('timer-text').innerText = sec; }, 1000);
     }
 
-    function renderTask(prefix, number) {
-        for(let i=0; i<=5; i++) {
-            let el = document.getElementById(prefix + i);
-            if(el && el.style.opacity !== "0") el.value = "";
+    function render(p, n) {
+        let arr = n.toString().split('').reverse();
+        for(let i=0; i<=5; i++) { 
+            let el = document.getElementById(p+i);
+            if(el) el.value = arr[i] || (el.style.opacity === "0" ? "" : ""); 
         }
-        let digits = number.toString().split('').reverse();
-        digits.forEach((val, i) => {
-            let el = document.getElementById(prefix + i);
-            if(el) el.value = val;
-        });
     }
 
-    function processAnswer() {
-        let userStr = "";
-        for(let i=5; i>=0; i--) {
-            let val = document.getElementById('a' + i).value;
-            if(val !== "") userStr += val;
-        }
-        
-        let userNum = parseInt(userStr);
-        if (isNaN(userNum)) {
-            alert("กรุณาใส่คำตอบก่อนตรวจครับ");
-            return;
-        }
+    function checkNow() {
+        let uStr = "";
+        for(let i=5; i>=0; i--) { let v = document.getElementById('a'+i).value; if(v!=="") uStr += v; }
+        let uNum = parseInt(uStr);
+        if(isNaN(uNum)) return alert("ใส่คำตอบก่อนครับ");
 
-        total++;
-        let isCorrect = (userNum === targetAns);
-
-        if (isCorrect) {
-            correct++;
-            score += 10;
-            document.getElementById('result-msg').innerHTML = "<span style='color:green'>🎉 ถูกต้อง! +10 คะแนน</span>";
-            document.getElementById('sound-win').play();
+        tCount++;
+        if(uNum === ans) {
+            myScore += 10; cCount++;
+            document.getElementById('result-msg').innerHTML = "<span style='color:green'>ถูกต้อง! +10</span>";
             confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-            clearInterval(timerActive);
+            clearInterval(clock);
+            addLog(true, uNum);
         } else {
-            wrong++;
-            score -= 10;
-            if (score < 0) score = 0; // ไม่ให้คะแนนติดลบ
-            document.getElementById('result-msg').innerHTML = "<span style='color:red'>❌ ผิดครับ -10 คะแนน</span>";
-            
-            // เอฟเฟกต์สั่นเมื่อผิด
-            const card = document.getElementById('main-card');
-            card.animate([{transform:'translateX(-5px)'},{transform:'translateX(5px)'}],{duration:100,iterations:3});
+            myScore -= 10; if(myScore < 0) myScore = 0;
+            wCount++;
+            document.getElementById('result-msg').innerHTML = "<span style='color:red'>ผิดครับ -10</span>";
+            addLog(false, uNum);
         }
 
-        // อัปเดตข้อมูลบนหน้าจอ
-        document.getElementById('score-display').innerText = score;
-        document.getElementById('total-tasks').innerText = total;
-        document.getElementById('total-correct').innerText = correct;
-        document.getElementById('total-wrong').innerText = wrong;
-
-        addLog(isCorrect, userNum);
+        // อัปเดตคะแนนลงหน้าจอทันที
+        document.getElementById('score-display').innerText = myScore;
+        document.getElementById('c-count').innerText = cCount;
+        document.getElementById('w-count').innerText = wCount;
     }
 
-    function addLog(isCorrect, userNum) {
-        const logBox = document.getElementById('log-items');
-        const entry = document.createElement('div');
-        entry.className = `history-item ${isCorrect ? 'item-correct' : 'item-wrong'}`;
-        
-        const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        entry.innerHTML = `
-            <span><strong>[${now}]</strong> ${n1} + ${n2} = ${targetAns}</span>
-            <span>ตอบ: ${userNum} ${isCorrect ? '✅' : '❌'}</span>
-        `;
-        logBox.prepend(entry);
+    function addLog(isC, uN) {
+        const log = document.getElementById('log-items');
+        const d = document.createElement('div');
+        d.className = `history-item ${isC ? 'item-correct' : 'item-wrong'}`;
+        d.innerHTML = `<span>${n1}+${n2}=${ans}</span><span>ตอบ ${uN} ${isC?'✅':'❌'}</span>`;
+        log.prepend(d);
     }
 
     window.onload = () => startGame(1);
