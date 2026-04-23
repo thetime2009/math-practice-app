@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>คณิตศาสตร์อัจฉริยะ v1.5.1</title>
+    <title>คณิตศาสตร์อัจฉริยะ v1.5.2</title>
     <link href="https://googleapis.com" rel="stylesheet">
     <style>
         :root { --primary: #3498db; --success: #2ecc71; --error: #e74c3c; --carry: #fffde7; --level-color: #9b59b6; --random-all: #f39c12; }
@@ -19,43 +19,38 @@
         .btn-random-mode.active { background: var(--random-all); color: white; }
 
         .stats { display: flex; justify-content: space-around; margin-bottom: 10px; font-size: 1.1rem; font-weight: bold; background: #eef2f7; padding: 10px; border-radius: 15px; border: 1px solid #d1d9e6; }
-        #score-display { color: #f39c12; font-size: 1.3rem; }
-
-        /* จัดระเบียบตารางเลขด้วย Flex */
-        .math-container { display: inline-flex; flex-direction: column; align-items: flex-end; width: 100%; margin-bottom: 10px; }
-        .row { display: flex; align-items: center; width: 100%; justify-content: flex-end; }
-        .label { font-weight: bold; color: #aaa; width: 45px; text-align: left; font-size: 11px; flex-shrink: 0; }
         
-        /* ช่องใส่เลข - ปรับให้กว้างคงที่และตรงกันทุกแถว */
-        .num-group { display: flex; justify-content: flex-end; width: calc(100% - 45px); }
+        /* โครงสร้างตารางเลขแบบ Grid */
+        .math-table { display: grid; grid-template-columns: 60px 1fr; gap: 5px; align-items: center; margin-bottom: 15px; }
+        .row-label { font-weight: bold; color: #aaa; font-size: 11px; text-align: left; }
+        .digit-group { display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; justify-items: end; }
+        
         input { 
-            width: 14%; max-width: 45px; height: 50px; text-align: center; font-size: 22px; 
-            font-weight: bold; margin: 2px; border: 2px solid #ddd; border-radius: 8px; outline: none;
+            width: 100%; max-width: 45px; height: 50px; text-align: center; font-size: 22px; 
+            font-weight: bold; border: 2px solid #ddd; border-radius: 8px; outline: none; box-sizing: border-box;
         }
 
-        /* แถวตัวทด - ขยับให้ตรงหลัก 10, 100, 1000... */
-        .carry-row input { height: 32px; background-color: var(--carry); border-color: #f1c40f; color: #d4ac0d; font-size: 14px; }
-        .spacer { width: 14%; max-width: 45px; margin: 2px; height: 32px; visibility: hidden; }
+        /* ปรับปรุงแถวตัวทด: มี 5 ช่อง และตรงกับหลัก 10-แสน */
+        .carry-row input { height: 35px; background-color: var(--carry); border-color: #f1c40f; color: #d4ac0d; font-size: 14px; }
+        .spacer { width: 100%; max-width: 45px; height: 35px; visibility: hidden; }
 
-        .answer-row { border-top: 3px solid #333; margin-top: 5px; padding-top: 5px; }
+        .answer-row { border-top: 3px solid #333; padding-top: 8px; margin-top: 5px; grid-column: 1 / span 2; display: grid; grid-template-columns: 60px 1fr; gap: 5px; align-items: center; }
         .answer-row input { background-color: #e8f5e9; border-color: var(--success); }
 
         .btn-check { width: 100%; padding: 15px; background: var(--success); color: white; border: none; border-radius: 15px; font-size: 20px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .btn-next { background: var(--primary); }
         .result-box { height: 35px; margin: 5px 0; font-size: 18px; font-weight: bold; }
-
-        #level-popup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
-        .popup-content { background: white; padding: 30px; border-radius: 20px; text-align: center; max-width: 80%; }
         .history-log { margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 10px; text-align: left; }
         .history-item { padding: 6px; border-radius: 8px; margin-bottom: 5px; border-left: 5px solid #ccc; background: #fafafa; display: flex; justify-content: space-between; font-size: 11px; }
     </style>
 </head>
 <body>
 
-<div id="level-popup"><div class="popup-content"><h2>🎉 LEVEL UP!</h2><p id="pop-desc"></p><button style="padding: 10px 30px; background: var(--success); color: white; border: none; border-radius: 10px;" onclick="closePopup()">ลุยต่อ!</button></div></div>
+<div id="level-popup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center;">
+    <div style="background:white; padding:30px; border-radius:20px; text-align:center;"><h2>🎉 LEVEL UP!</h2><p id="pop-desc"></p><button style="padding:10px 30px; background:var(--success); color:white; border:none; border-radius:10px;" onclick="document.getElementById('level-popup').style.display='none'">ลุยต่อ!</button></div>
+</div>
 
 <div class="app-card">
-    <div class="version-tag">v1.5.1-Aligned</div>
+    <div class="version-tag">v1.5.2-GridAligned</div>
     <div class="level-badge" id="level-tag">🏆 Level 0</div>
     
     <div class="difficulty-zones">
@@ -69,40 +64,39 @@
 
     <div class="stats">
         <span>⏱️ <span id="time-val">0</span> วิ</span>
-        <span>⭐⭐⭐คะแนนรวม <span id="score-display">0</span></span>
+        <span>⭐ <span id="score-display" style="color:#f39c12">0</span></span>
     </div>
 
-    <div class="math-container">
-        <!-- แถวตัวทด - วางช่องทดให้ตรงกับหลัก 10 ถึง หลักแสน -->
-        <div class="row carry-row">
-            <span class="label">ตัวทด</span>
-            <div class="num-group">
-                <input type="number" id="c5" class="num-in">
-                <input type="number" id="c4" class="num-in">
-                <input type="number" id="c3" class="num-in">
-                <input type="number" id="c2" class="num-in">
-                <input type="number" id="c1" class="num-in">
-                <div class="spacer"></div> <!-- หลักหน่วยไม่ต้องทด -->
-            </div>
+    <div class="math-table">
+        <!-- แถวตัวทด -->
+        <div class="row-label">ตัวทด</div>
+        <div class="digit-group carry-row">
+            <input type="number" id="c5" class="num-in">
+            <input type="number" id="c4" class="num-in">
+            <input type="number" id="c3" class="num-in">
+            <input type="number" id="c2" class="num-in">
+            <input type="number" id="c1" class="num-in">
+            <div class="spacer"></div> <!-- เว้นหลักหน่วยให้ตรงกันพอดี -->
         </div>
+
         <!-- ตัวตั้ง -->
-        <div class="row">
-            <span class="label">ตัวตั้ง</span>
-            <div class="num-group">
-                <input type="text" id="q1_5" readonly style="opacity:0"><input type="text" id="q1_4" readonly><input type="text" id="q1_3" readonly><input type="text" id="q1_2" readonly><input type="text" id="q1_1" readonly><input type="text" id="q1_0" readonly>
-            </div>
+        <div class="row-label">ตัวตั้ง</div>
+        <div class="digit-group">
+            <input type="text" id="q1_5" readonly style="opacity:0">
+            <input type="text" id="q1_4" readonly><input type="text" id="q1_3" readonly><input type="text" id="q1_2" readonly><input type="text" id="q1_1" readonly><input type="text" id="q1_0" readonly>
         </div>
+
         <!-- ตัวบวก -->
-        <div class="row">
-            <span class="label">ตัวบวก</span>
-            <div class="num-group">
-                <input type="text" id="q2_5" readonly style="opacity:0"><input type="text" id="q2_4" readonly><input type="text" id="q2_3" readonly><input type="text" id="q2_2" readonly><input type="text" id="q2_1" readonly><input type="text" id="q2_0" readonly>
-            </div>
+        <div class="row-label">ตัวบวก</div>
+        <div class="digit-group">
+            <input type="text" id="q2_5" readonly style="opacity:0">
+            <input type="text" id="q2_4" readonly><input type="text" id="q2_3" readonly><input type="text" id="q2_2" readonly><input type="text" id="q2_1" readonly><input type="text" id="q2_0" readonly>
         </div>
-        <!-- คำตอบ -->
-        <div class="row answer-row">
-            <span class="label">คำตอบ</span>
-            <div class="num-group">
+
+        <!-- แถวคำตอบ -->
+        <div class="answer-row">
+            <div class="row-label">คำตอบ</div>
+            <div class="digit-group">
                 <input type="number" id="a5" class="num-in"><input type="number" id="a4" class="num-in"><input type="number" id="a3" class="num-in"><input type="number" id="a2" class="num-in"><input type="number" id="a1" class="num-in"><input type="number" id="a0" class="num-in">
             </div>
         </div>
@@ -115,7 +109,7 @@
 
 <script>
     let n1, n2, ans, selectedMode = 1, curD = 1, totalScore = 0, sec = 0, timer, hList = [];
-    let lastLevelAwarded = 0;
+    let lastLvl = 0;
 
     const ins = Array.from(document.querySelectorAll('.num-in'));
     ins.forEach((input, i) => {
@@ -128,17 +122,14 @@
         });
     });
 
-    function selectMode(d) {
-        selectedMode = d;
-        startGame(d === 0 ? Math.floor(Math.random() * 5) + 1 : d);
-    }
+    function selectMode(d) { selectedMode = d; startGame(d === 0 ? Math.floor(Math.random() * 5) + 1 : d); }
 
     function startGame(d) {
         curD = d; clearInterval(timer); sec = 0;
         document.getElementById('time-val').innerText = "0";
         document.getElementById('result-text').innerText = "";
         const btn = document.getElementById('main-btn');
-        btn.innerText = "🎯 ตรวจคำตอบ"; btn.className = "btn-check"; btn.onclick = checkAnswer;
+        btn.innerText = "🎯 ตรวจคำตอบ"; btn.onclick = checkAnswer;
         document.querySelectorAll('.btn-mode').forEach(b => b.classList.remove('active'));
         document.getElementById('m' + selectedMode).classList.add('active');
         document.querySelectorAll('input').forEach(el => { if(!el.readOnly || el.style.opacity !== "0") el.value = ""; });
@@ -146,11 +137,11 @@
         n1 = Math.floor(Math.random()*(max-min+1)+min);
         n2 = Math.floor(Math.random()*(max-min+1)+min);
         ans = n1 + n2;
-        renderRows('q1_', n1); renderRows('q2_', n2);
+        render('q1_', n1); render('q2_', n2);
         timer = setInterval(() => { sec++; document.getElementById('time-val').innerText = sec; }, 1000);
     }
 
-    function renderRows(p, num) {
+    function render(p, num) {
         let arr = num.toString().split('').reverse();
         for(let i=0; i<=5; i++) {
             let el = document.getElementById(p+i);
@@ -170,33 +161,24 @@
         if(isRight) {
             totalScore += point;
             document.getElementById('result-text').innerHTML = `<span style='color:green'>ถูกต้อง! +${point}</span>`;
-            checkLevelUp();
+            if (Math.floor(totalScore/100) > Math.floor(lastLvl/100)) {
+                lastLvl = totalScore;
+                document.getElementById('pop-desc').innerText = `Level ${Math.floor(totalScore/100)} แล้ว!`;
+                document.getElementById('level-popup').style.display = 'flex';
+            }
         } else {
             totalScore -= point;
             document.getElementById('result-text').innerHTML = `<span style='color:red'>ผิดครับ -${point}</span>`;
         }
 
-        updateUI(); addHistory(isRight, uNum);
+        document.getElementById('score-display').innerText = totalScore;
+        document.getElementById('score-display').style.color = totalScore < 0 ? 'red' : '#f39c12';
+        document.getElementById('level-tag').innerText = `🏆 Level ${Math.max(0, Math.floor(totalScore/100))}`;
+        
+        addHistory(isRight, uNum);
         document.getElementById('main-btn').innerText = "🎲 ข้อต่อไป";
         document.getElementById('main-btn').onclick = () => selectMode(selectedMode);
     }
-
-    function updateUI() {
-        const sc = document.getElementById('score-display');
-        sc.innerText = totalScore;
-        sc.style.color = totalScore < 0 ? 'red' : '#f39c12';
-        document.getElementById('level-tag').innerText = `🏆 Level ${Math.max(0, Math.floor(totalScore / 100))}`;
-    }
-
-    function checkLevelUp() {
-        if (totalScore > 0 && Math.floor(totalScore / 100) > Math.floor(lastLevelAwarded / 100)) {
-            lastLevelAwarded = totalScore;
-            document.getElementById('pop-desc').innerText = `Level ${Math.floor(totalScore / 100)} แล้ว!`;
-            document.getElementById('level-popup').style.display = 'flex';
-        }
-    }
-
-    function closePopup() { document.getElementById('level-popup').style.display = 'none'; }
 
     function addHistory(isRight, uN) {
         const list = document.getElementById('log-list');
