@@ -3,14 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    
-    <!-- Meta สำหรับ iOS Safari -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="เกมบวกเลข">
     <link rel="apple-touch-icon" href="https://flaticon.com">
 
-    <title>เกมบวกเลขสายตึงของ นายเพรช v1.7.2</title>
+    <title>เกมบวกเลขสายตึงของ นายเพรช v1.8.0</title>
     <link href="https://googleapis.com" rel="stylesheet">
     
     <style>
@@ -19,9 +16,7 @@
         
         .app-card { background: white; padding: 20px 15px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 480px; position: relative; }
         
-        /* ปุ่มแนะนำการติดตั้ง (แสดงผลเสมอถ้าไม่ใช่บนแอป) */
         .install-guide { background: #2c3e50; color: white; padding: 12px; border-radius: 12px; margin-bottom: 15px; font-size: 13px; display: block; border: none; width: 100%; cursor: pointer; }
-
         .main-title { font-size: 22px; font-weight: bold; color: #2c3e50; margin: 5px 0 0 0; }
         .sub-title { font-size: 14px; color: var(--primary); font-weight: bold; margin-bottom: 10px; display: block; }
         .version-tag { position: absolute; top: 12px; right: 18px; font-size: 10px; color: #ccc; }
@@ -36,7 +31,8 @@
         .btn-plus { background: var(--success); }
         .btn-minus { background: var(--error); }
 
-        .math-table { display: grid; grid-template-columns: 60px 1fr; gap: 4px; align-items: center; margin-bottom: 15px; max-height: 40vh; overflow-y: auto; padding-right: 5px; }
+        /* ปรับปรุง Math Table ให้รองรับการเลื่อนเมื่อมี 10 แถว */
+        .math-table { display: grid; grid-template-columns: 60px 1fr; gap: 4px; align-items: center; margin-bottom: 15px; max-height: 45vh; overflow-y: auto; padding-right: 5px; border: 1px solid #eee; padding: 10px; border-radius: 15px; }
         .row-label { font-weight: bold; color: #bbb; font-size: 11px; text-align: left; }
         .digit-group { display: grid; grid-template-columns: repeat(6, 1fr); gap: 3px; justify-items: end; }
         
@@ -46,7 +42,7 @@
         .answer-row { border-top: 3px solid #444; padding-top: 10px; margin-top: 5px; grid-column: 1 / span 2; display: grid; grid-template-columns: 60px 1fr; gap: 4px; align-items: center; }
         .answer-row input { background-color: #f1fbf3; border-color: var(--success); }
 
-        .btn-check { width: 100%; padding: 18px; background: var(--success); color: white; border: none; border-radius: 15px; font-size: 22px; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 5px 0 #27ae60; }
+        .btn-check { width: 100%; padding: 18px; background: var(--success); color: white; border: none; border-radius: 18px; font-size: 22px; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 5px 0 #27ae60; }
         .thai-read { font-size: 16px; color: #555; background: #fff9c4; padding: 8px; border-radius: 12px; margin-top: 5px; }
         .history-log { margin-top: 20px; border-top: 1px dashed #ddd; padding-top: 15px; text-align: left; }
         .history-item { padding: 8px 12px; border-radius: 10px; margin-bottom: 6px; border-left: 5px solid #ccc; background: #fdfdfd; display: flex; justify-content: space-between; font-size: 11px; }
@@ -56,8 +52,7 @@
 
 <div class="app-card">
     <button class="install-guide" onclick="showInstallInfo()">📲 วิธีติดตั้งแอปไว้บนมือถือ</button>
-    
-    <div class="version-tag">v1.7.2</div>
+    <div class="version-tag">v1.8.0</div>
     <h1 class="main-title">เกมบวกเลขสายตึง</h1>
     <span class="sub-title">ของ ธนพงษ์ เผ่าเพ็ง</span>
     
@@ -74,7 +69,7 @@
 
     <div class="row-controls">
         <button class="btn-row-edit btn-minus" onclick="changeRows(-1)">−</button>
-        <div style="font-weight:bold;">บวกกัน <span id="row-num">2</span> จำนวน</div>
+        <div style="font-weight:bold; min-width: 140px;">บวกกัน <span id="row-num">2</span> จำนวน</div>
         <button class="btn-row-edit btn-plus" onclick="changeRows(1)">+</button>
     </div>
 
@@ -100,22 +95,14 @@
 
     <div id="result-text" style="min-height:40px; font-weight:bold; margin:5px;"></div>
     <button class="btn-check" id="main-btn" onclick="checkAnswer()">🎯 ตรวจคำตอบ</button>
-
-    <div class="history-log">
-        <strong>🕒 ประวัติ 10 ข้อล่าสุด:</strong>
-        <div id="log-list"></div>
-    </div>
+    <div class="history-log"><strong>🕒 ประวัติ 10 ข้อล่าสุด:</strong><div id="log-list"></div></div>
 </div>
 
 <script>
-    // ฟังก์ชันแนะนำการติดตั้ง
     function showInstallInfo() {
         const ua = navigator.userAgent.toLowerCase();
-        if (ua.indexOf('iphone') > -1 || ua.indexOf('ipad') > -1) {
-            alert("วิธีติดตั้งบน iPhone:\n1. กดปุ่ม 'แชร์' (สี่เหลี่ยมลูกศรชี้ขึ้น ด้านล่างหน้าจอ)\n2. เลือก 'เพิ่มลงในหน้าจอโฮม' (Add to Home Screen)");
-        } else {
-            alert("วิธีติดตั้งบน Android:\n1. กดปุ่ม '3 จุด' (มุมขวาบนของ Chrome)\n2. เลือก 'ติดตั้งแอป' หรือ 'เพิ่มลงในหน้าจอโฮม'");
-        }
+        if (ua.indexOf('iphone') > -1 || ua.indexOf('ipad') > -1) alert("วิธีติดตั้งบน iPhone:\n1. กดปุ่ม 'แชร์' (สี่เหลี่ยมลูกศรชี้ขึ้น)\n2. เลือก 'เพิ่มลงในหน้าจอโฮม'");
+        else alert("วิธีติดตั้งบน Android:\n1. กดปุ่ม '3 จุด' (มุมขวาบน)\n2. เลือก 'ติดตั้งแอป' หรือ 'เพิ่มลงในหน้าจอโฮม'");
     }
 
     let nValues = [], ans, selectedMode = 1, curD = 1, totalScore = 0, sec = 0, timer, rowCount = 2, hList = [];
@@ -139,7 +126,7 @@
     }
 
     function changeRows(val) {
-        rowCount = Math.max(2, Math.min(8, rowCount + val));
+        rowCount = Math.max(2, Math.min(10, rowCount + val)); // ปรับสูงสุดเป็น 10
         document.getElementById('row-num').innerText = rowCount;
         startGame(selectedMode === 0 ? Math.floor(Math.random() * 5) + 1 : selectedMode);
     }
@@ -196,13 +183,12 @@
         clearInterval(timer);
 
         totalScore += isRight ? point : -point;
-        document.getElementById('result-text').innerHTML = (isRight ? `<span style='color:green'>ถูกต้อง! +${point}</span>` : `<span style='color:red'>ผิดครับ -${point}</span>`) + `<div class="thai-read">คำตอบตือ: ${thaiRead(ans)}</div>`;
+        document.getElementById('result-text').innerHTML = (isRight ? `<span style='color:green'>ถูกต้อง! +${point}</span>` : `<span style='color:red'>ผิดครับ -${point}</span>`) + `<div class="thai-read">คำตอบคือ: ${thaiRead(ans)}</div>`;
         
         document.getElementById('score-display').innerText = totalScore;
         document.getElementById('level-tag').innerText = `🏆 Level ${Math.max(0, Math.floor(totalScore/100))}`;
         
         addHistory(isRight, uNum);
-
         document.getElementById('main-btn').innerText = "🎲 ข้อต่อไป";
         document.getElementById('main-btn').onclick = () => selectMode(selectedMode);
     }
