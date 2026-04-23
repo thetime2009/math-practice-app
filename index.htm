@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>โปรแกรมฝึกบวกเลข - ตัวทดขนาดใหญ่</title>
+    <title>โปรแกรมฝึกบวกเลข - ช่องตรงกันทุกแถว</title>
     <link href="https://googleapis.com" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #f4f7f6;
+            --bg-color: #f8f9fa;
             --primary: #3498db;
             --success: #2ecc71;
             --carry-color: #f1c40f;
@@ -28,7 +28,7 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             text-align: center;
             width: 100%;
-            max-width: 600px;
+            max-width: 650px;
         }
 
         .difficulty-zones {
@@ -59,7 +59,6 @@
             color: #555;
         }
 
-        /* ตารางคำนวณ */
         .math-grid {
             display: inline-block;
             margin-bottom: 20px;
@@ -79,7 +78,7 @@
             text-align: left;
         }
 
-        /* กำหนดขนาด Input ทุกช่องให้เท่ากัน */
+        /* ขนาด Input เท่ากันทุกช่อง */
         input {
             width: 55px;
             height: 65px;
@@ -92,18 +91,14 @@
             outline: none;
         }
 
-        /* ตกแต่งช่องตัวทด */
+        /* สีพิเศษสำหรับช่องตัวทด */
         .carry-row input {
             background-color: #fffde7;
             border-color: var(--carry-color);
             color: #d4ac0d;
         }
 
-        /* ช่องว่างเพื่อดันตัวทดให้ตรงหลัก (เยื้องซ้าย 1 ช่อง) */
-        .spacer {
-            width: 61px; /* ขนาด input 55px + margin 6px */
-        }
-
+        /* เส้นใต้แสดงการบวก */
         .answer-row {
             border-top: 4px solid #333;
             margin-top: 10px;
@@ -138,7 +133,7 @@
 <body>
 
 <div class="app-card">
-    <h3>✍️ แบบฝึกหัดการบวกเลข</h3>
+    <h3>✍️ แบบฝึกหัดการบวกเลข เด็กชายเพรช</h3>
 
     <div class="difficulty-zones">
         <button class="btn-mode" onclick="startGame(1)">1 หลัก</button>
@@ -153,7 +148,7 @@
     </div>
 
     <div class="math-grid">
-        <!-- แถวตัวทด: มี 5 ช่อง และเยื้องซ้าย 1 หลัก -->
+        <!-- แถวตัวทด: ปรับเป็น 6 ช่องให้เท่ากับช่องคำตอบสูงสุด -->
         <div class="row carry-row">
             <span class="label">ตัวทด</span>
             <input type="number" id="c5" maxlength="1">
@@ -161,20 +156,24 @@
             <input type="number" id="c3" maxlength="1">
             <input type="number" id="c2" maxlength="1">
             <input type="number" id="c1" maxlength="1">
-            <div class="spacer"></div> <!-- ดันให้ c1 ตรงกับหลักสิบ -->
+            <input type="number" id="c0" maxlength="1">
         </div>
 
-        <!-- แถวโจทย์ -->
+        <!-- แถวตัวตั้ง -->
         <div class="row">
             <span class="label">ตัวตั้ง</span>
+            <input type="text" id="q1_5" readonly style="opacity:0"> <!-- ช่องเสริมให้แถวเท่ากัน -->
             <input type="text" id="q1_4" readonly>
             <input type="text" id="q1_3" readonly>
             <input type="text" id="q1_2" readonly>
             <input type="text" id="q1_1" readonly>
             <input type="text" id="q1_0" readonly>
         </div>
+
+        <!-- แถวตัวบวก -->
         <div class="row">
             <span class="label">ตัวบวก</span>
+            <input type="text" id="q2_5" readonly style="opacity:0"> <!-- ช่องเสริมให้แถวเท่ากัน -->
             <input type="text" id="q2_4" readonly>
             <input type="text" id="q2_3" readonly>
             <input type="text" id="q2_2" readonly>
@@ -206,7 +205,7 @@
     let timer = 0;
     let timerInt;
 
-    // ระบบ Input ตัวเดียวและข้ามช่องอัตโนมัติ
+    // ระบบ Input จัดการเรื่องกรอกเลขตัวเดียวและ Focus
     document.querySelectorAll('input[type="number"]').forEach(input => {
         input.addEventListener('input', function() {
             if (this.value.length > 1) this.value = this.value.slice(-1);
@@ -224,9 +223,9 @@
         document.getElementById('time').innerText = timer;
         document.getElementById('result').innerText = "";
         
-        // ล้างข้อมูลทุกช่อง (ตัวทด + คำตอบ)
+        // ล้างข้อมูลทุกช่อง
         document.querySelectorAll('input').forEach(el => {
-            if(!el.readOnly) el.value = "";
+            if(!el.readOnly || el.style.opacity !== "0") el.value = "";
         });
 
         // สุ่มโจทย์
@@ -246,9 +245,15 @@
     }
 
     function fill(prefix, num) {
-        for(let i=0; i<=4; i++) document.getElementById(prefix + i).value = "";
+        for(let i=0; i<=5; i++) {
+            let el = document.getElementById(prefix + i);
+            if(el && el.style.opacity !== "0") el.value = "";
+        }
         let s = num.toString().split('').reverse();
-        s.forEach((v, i) => document.getElementById(prefix + i).value = v);
+        s.forEach((v, i) => {
+            let el = document.getElementById(prefix + i);
+            if(el) el.value = v;
+        });
     }
 
     function checkAnswer() {
