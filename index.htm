@@ -3,54 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>คณิตศาสตร์อัจฉริยะ v1.5.2</title>
+    <title>คณิตศาสตร์อัจฉริยะ v1.5.3</title>
     <link href="https://googleapis.com" rel="stylesheet">
     <style>
         :root { --primary: #3498db; --success: #2ecc71; --error: #e74c3c; --carry: #fffde7; --level-color: #9b59b6; --random-all: #f39c12; }
         body { font-family: 'Sarabun', sans-serif; background-color: #f0f4f8; margin: 0; padding: 10px; display: flex; justify-content: center; }
-        .app-card { background: white; padding: 15px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 500px; position: relative; }
-        .version-tag { position: absolute; top: 10px; right: 15px; font-size: 10px; color: #bbb; }
-        .level-badge { display: inline-block; background: var(--level-color); color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold; margin-bottom: 10px; font-size: 14px; }
+        .app-card { background: white; padding: 20px 15px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 480px; position: relative; }
+        .version-tag { position: absolute; top: 12px; right: 18px; font-size: 10px; color: #ccc; }
+        .level-badge { display: inline-block; background: var(--level-color); color: white; padding: 4px 18px; border-radius: 20px; font-weight: bold; margin-bottom: 15px; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         
-        .difficulty-zones { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-bottom: 15px; }
-        .btn-mode { padding: 10px 2px; border: 2px solid var(--primary); background: white; color: var(--primary); border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 12px; }
+        .difficulty-zones { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 18px; }
+        .btn-mode { padding: 10px 2px; border: 2px solid var(--primary); background: white; color: var(--primary); border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 12px; transition: 0.2s; }
         .btn-mode.active { background: var(--primary); color: white; }
         .btn-random-mode { border-color: var(--random-all); color: var(--random-all); }
         .btn-random-mode.active { background: var(--random-all); color: white; }
 
-        .stats { display: flex; justify-content: space-around; margin-bottom: 10px; font-size: 1.1rem; font-weight: bold; background: #eef2f7; padding: 10px; border-radius: 15px; border: 1px solid #d1d9e6; }
+        .stats { display: flex; justify-content: space-around; margin-bottom: 15px; font-size: 1.2rem; font-weight: bold; background: #f8f9fa; padding: 12px; border-radius: 18px; border: 1px solid #e9ecef; }
         
-        /* โครงสร้างตารางเลขแบบ Grid */
-        .math-table { display: grid; grid-template-columns: 60px 1fr; gap: 5px; align-items: center; margin-bottom: 15px; }
-        .row-label { font-weight: bold; color: #aaa; font-size: 11px; text-align: left; }
-        .digit-group { display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; justify-items: end; }
+        /* จัดตารางเลข - ลดช่องไฟ (Gap) ให้ชิดกัน */
+        .math-table { display: grid; grid-template-columns: 55px 1fr; gap: 4px; align-items: center; margin-bottom: 15px; }
+        .row-label { font-weight: bold; color: #bbb; font-size: 11px; text-align: left; }
+        .digit-group { display: grid; grid-template-columns: repeat(6, 1fr); gap: 3px; justify-items: end; }
         
         input { 
-            width: 100%; max-width: 45px; height: 50px; text-align: center; font-size: 22px; 
-            font-weight: bold; border: 2px solid #ddd; border-radius: 8px; outline: none; box-sizing: border-box;
+            width: 100%; max-width: 44px; height: 52px; text-align: center; font-size: 24px; 
+            font-weight: bold; border: 2px solid #eee; border-radius: 10px; outline: none; box-sizing: border-box; background: #fff;
         }
 
-        /* ปรับปรุงแถวตัวทด: มี 5 ช่อง และตรงกับหลัก 10-แสน */
-        .carry-row input { height: 35px; background-color: var(--carry); border-color: #f1c40f; color: #d4ac0d; font-size: 14px; }
-        .spacer { width: 100%; max-width: 45px; height: 35px; visibility: hidden; }
+        /* ปรับแต่งแถวตัวทด */
+        .carry-row input { height: 38px; background-color: var(--carry); border: 2px solid #f1c40f; color: #d4ac0d; font-size: 16px; border-radius: 8px; }
+        .spacer { width: 100%; max-width: 44px; height: 38px; visibility: hidden; }
 
-        .answer-row { border-top: 3px solid #333; padding-top: 8px; margin-top: 5px; grid-column: 1 / span 2; display: grid; grid-template-columns: 60px 1fr; gap: 5px; align-items: center; }
-        .answer-row input { background-color: #e8f5e9; border-color: var(--success); }
+        /* ปรับแต่งแถวคำตอบ */
+        .answer-row { border-top: 3px solid #444; padding-top: 10px; margin-top: 5px; grid-column: 1 / span 2; display: grid; grid-template-columns: 55px 1fr; gap: 4px; align-items: center; }
+        .answer-row input { background-color: #f1fbf3; border-color: var(--success); }
 
-        .btn-check { width: 100%; padding: 15px; background: var(--success); color: white; border: none; border-radius: 15px; font-size: 20px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .result-box { height: 35px; margin: 5px 0; font-size: 18px; font-weight: bold; }
-        .history-log { margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 10px; text-align: left; }
-        .history-item { padding: 6px; border-radius: 8px; margin-bottom: 5px; border-left: 5px solid #ccc; background: #fafafa; display: flex; justify-content: space-between; font-size: 11px; }
+        .btn-check { width: 100%; padding: 16px; background: var(--success); color: white; border: none; border-radius: 18px; font-size: 22px; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 5px 0 #27ae60; }
+        .btn-check:active { transform: translateY(3px); box-shadow: 0 2px 0 #27ae60; }
+
+        .result-box { height: 40px; margin: 8px 0; font-size: 22px; font-weight: bold; }
+        .history-log { margin-top: 20px; border-top: 1px dashed #ddd; padding-top: 15px; text-align: left; }
+        .history-item { padding: 8px 15px; border-radius: 10px; margin-bottom: 6px; border-left: 5px solid #ccc; background: #fdfdfd; display: flex; justify-content: space-between; font-size: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
     </style>
 </head>
 <body>
 
-<div id="level-popup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center;">
-    <div style="background:white; padding:30px; border-radius:20px; text-align:center;"><h2>🎉 LEVEL UP!</h2><p id="pop-desc"></p><button style="padding:10px 30px; background:var(--success); color:white; border:none; border-radius:10px;" onclick="document.getElementById('level-popup').style.display='none'">ลุยต่อ!</button></div>
+<div id="level-popup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:1000; justify-content:center; align-items:center;">
+    <div style="background:white; padding:35px; border-radius:25px; text-align:center; max-width:80%;"><h2>🎊 เก่งมาก!</h2><p id="pop-desc" style="font-size:18px; margin:20px 0;"></p><button style="padding:12px 35px; background:var(--success); color:white; border:none; border-radius:12px; font-weight:bold; font-size:16px;" onclick="document.getElementById('level-popup').style.display='none'">ข้อต่อไป!</button></div>
 </div>
 
 <div class="app-card">
-    <div class="version-tag">v1.5.2-GridAligned</div>
+    <div class="version-tag">v1.5.3-TightGap</div>
     <div class="level-badge" id="level-tag">🏆 Level 0</div>
     
     <div class="difficulty-zones">
@@ -68,7 +71,6 @@
     </div>
 
     <div class="math-table">
-        <!-- แถวตัวทด -->
         <div class="row-label">ตัวทด</div>
         <div class="digit-group carry-row">
             <input type="number" id="c5" class="num-in">
@@ -76,24 +78,21 @@
             <input type="number" id="c3" class="num-in">
             <input type="number" id="c2" class="num-in">
             <input type="number" id="c1" class="num-in">
-            <div class="spacer"></div> <!-- เว้นหลักหน่วยให้ตรงกันพอดี -->
+            <div class="spacer"></div> 
         </div>
 
-        <!-- ตัวตั้ง -->
         <div class="row-label">ตัวตั้ง</div>
         <div class="digit-group">
             <input type="text" id="q1_5" readonly style="opacity:0">
             <input type="text" id="q1_4" readonly><input type="text" id="q1_3" readonly><input type="text" id="q1_2" readonly><input type="text" id="q1_1" readonly><input type="text" id="q1_0" readonly>
         </div>
 
-        <!-- ตัวบวก -->
         <div class="row-label">ตัวบวก</div>
         <div class="digit-group">
             <input type="text" id="q2_5" readonly style="opacity:0">
             <input type="text" id="q2_4" readonly><input type="text" id="q2_3" readonly><input type="text" id="q2_2" readonly><input type="text" id="q2_1" readonly><input type="text" id="q2_0" readonly>
         </div>
 
-        <!-- แถวคำตอบ -->
         <div class="answer-row">
             <div class="row-label">คำตอบ</div>
             <div class="digit-group">
@@ -104,7 +103,7 @@
 
     <div id="result-text" class="result-box"></div>
     <button class="btn-check" id="main-btn" onclick="checkAnswer()">🎯 ตรวจคำตอบ</button>
-    <div class="history-log"><strong>🕒 ประวัติ:</strong><div id="log-list"></div></div>
+    <div class="history-log"><strong>🕒 ประวัติ 10 ข้อล่าสุด:</strong><div id="log-list"></div></div>
 </div>
 
 <script>
@@ -163,7 +162,7 @@
             document.getElementById('result-text').innerHTML = `<span style='color:green'>ถูกต้อง! +${point}</span>`;
             if (Math.floor(totalScore/100) > Math.floor(lastLvl/100)) {
                 lastLvl = totalScore;
-                document.getElementById('pop-desc').innerText = `Level ${Math.floor(totalScore/100)} แล้ว!`;
+                document.getElementById('pop-desc').innerText = `คุณสะสมครบ ${totalScore} คะแนน\nผ่านเข้าสู่ Level ${Math.floor(totalScore/100)} แล้ว!`;
                 document.getElementById('level-popup').style.display = 'flex';
             }
         } else {
