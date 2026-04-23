@@ -60,7 +60,7 @@
     <button class="install-guide" onclick="showInstallInfo()">📲 วิธีติดตั้งแอปไว้บนมือถือ</button>
     <div class="version-tag">v1.8.1</div>
     <h1 class="main-title">เกมบวกเลขสายตึง</h1>
-    <span class="sub-title">ของ นายเพรช</span>
+    <span class="sub-title">ของ ธนพงษ์ เผ่าเพ็ง</span>
     
     <div class="level-badge" id="level-tag">🏆 Level 0</div>
     
@@ -81,7 +81,7 @@
 
     <div class="stats">
         <span>⏱️ <span id="time-val">0</span> วิ</span>
-        <span>⭐ <span id="score-display" class="score-normal">0</span></span>
+        <span>⭐คะแนนรวม <span id="score-display" class="score-normal">0</span></span>
     </div>
 
     <div class="math-table" id="math-grid">
@@ -203,7 +203,7 @@
             scoreEl.className = "score-normal";
         }
 
-        document.getElementById('result-text').innerHTML = (isRight ? `<span style='color:green'>ถูกต้อง! +${point}</span>` : `<span style='color:red'>ผิดครับ -${point}</span>`) + `<div class="thai-read">คำอ่าน: ${thaiRead(ans)}</div>`;
+        document.getElementById('result-text').innerHTML = (isRight ? `<span style='color:green'>ถูกต้อง! +${point}</span>` : `<span style='color:red'>ผิดครับ -${point}</span>`) + `<div class="thai-read">คำตอบคือ: ${thaiRead(ans)}</div>`;
         document.getElementById('level-tag').innerText = `🏆 Level ${Math.max(0, Math.floor(totalScore/100))}`;
         
         addHistory(isRight, uNum);
