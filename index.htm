@@ -3,33 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>คณิตศาสตร์อัจฉริยะ v1.4.0</title>
+    <title>คณิตศาสตร์อัจฉริยะ v1.4.1</title>
     <link href="https://googleapis.com" rel="stylesheet">
     <style>
-        :root { --primary: #3498db; --success: #2ecc71; --error: #e74c3c; --carry: #fffde7; }
+        :root { --primary: #3498db; --success: #2ecc71; --error: #e74c3c; --carry: #fffde7; --level-color: #9b59b6; }
         
-        /* ปรับพื้นฐานให้เหมาะกับมือถือ */
-        body { 
-            font-family: 'Sarabun', sans-serif; 
-            background-color: #f0f4f8; 
-            margin: 0; 
-            padding: 10px;
-            display: flex; 
-            justify-content: center;
-        }
+        body { font-family: 'Sarabun', sans-serif; background-color: #f0f4f8; margin: 0; padding: 10px; display: flex; justify-content: center; }
 
         .app-card { 
-            background: white; 
-            padding: 15px; 
-            border-radius: 20px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
-            text-align: center; 
-            width: 100%; 
-            max-width: 500px; 
-            position: relative;
+            background: white; padding: 15px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+            text-align: center; width: 100%; max-width: 500px; position: relative;
         }
 
         .version-tag { position: absolute; top: 10px; right: 15px; font-size: 10px; color: #bbb; }
+
+        /* Level Badge Style */
+        .level-badge {
+            display: inline-block; background: var(--level-color); color: white;
+            padding: 5px 15px; border-radius: 20px; font-weight: bold; margin-bottom: 10px;
+            box-shadow: 0 3px 0 #8e44ad; font-size: 14px;
+        }
 
         .difficulty-zones { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 15px; }
         .btn-mode { padding: 8px 2px; border: 2px solid var(--primary); background: white; color: var(--primary); border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 13px; }
@@ -43,19 +36,10 @@
         .row { display: flex; justify-content: flex-end; align-items: center; margin-bottom: 3px; }
         .label { font-weight: bold; color: #aaa; width: 50px; text-align: left; font-size: 12px; }
 
-        /* ปรับขนาดช่องใส่เลขให้พอดีกับมือถือ */
         input { 
-            width: 14%; 
-            max-width: 50px;
-            height: 55px; 
-            text-align: center; 
-            font-size: 24px; 
-            font-weight: bold; 
-            margin: 1px; 
-            border: 2px solid #ddd; 
-            border-radius: 8px; 
-            outline: none;
-            -webkit-appearance: none; /* ลบลูกศรใน Safari */
+            width: 14%; max-width: 50px; height: 55px; text-align: center; 
+            font-size: 24px; font-weight: bold; margin: 1px; border: 2px solid #ddd; 
+            border-radius: 8px; outline: none; -webkit-appearance: none;
         }
         
         .carry-row input { height: 35px; background-color: var(--carry); border-color: #f1c40f; color: #d4ac0d; font-size: 16px; }
@@ -69,23 +53,15 @@
 
         /* Popup ผ่านด่าน */
         #level-popup {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 1000;
-            justify-content: center; align-items: center;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;
         }
         .popup-content {
             background: white; padding: 30px; border-radius: 20px; text-align: center;
-            animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            max-width: 80%;
+            animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); max-width: 80%;
         }
         @keyframes pop { from { transform: scale(0); } to { transform: scale(1); } }
-        .popup-content h2 { color: #f39c12; margin: 0; font-size: 30px; }
-        .popup-content p { font-size: 18px; margin: 15px 0; color: #555; }
-        .btn-close-popup { padding: 10px 30px; background: var(--success); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
-
+        
         .history-log { margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 10px; text-align: left; }
         .history-item { padding: 8px; border-radius: 8px; margin-bottom: 5px; border-left: 5px solid #ccc; background: #fafafa; display: flex; justify-content: space-between; font-size: 12px; }
         .item-correct { border-left-color: var(--success); }
@@ -96,15 +72,16 @@
 
 <div id="level-popup">
     <div class="popup-content">
-        <h2 id="pop-title">🎉 ยินดีด้วย!</h2>
-        <p id="pop-desc">คุณผ่านด่านที่ 1 แล้ว</p>
-        <button class="btn-close-popup" onclick="closePopup()">ลุยต่อ!</button>
+        <h2>🎉 LEVEL UP!</h2>
+        <p id="pop-desc"></p>
+        <button style="padding: 10px 30px; background: var(--success); color: white; border: none; border-radius: 10px; font-weight: bold;" onclick="closePopup()">ลุยต่อ!</button>
     </div>
 </div>
 
 <div class="app-card">
-    <div class="version-tag">v1.4.0-Mobile</div>
-    <h3 style="margin: 5px 0;">🚀 ฝึกบวกเลข</h3>
+    <div class="version-tag">v1.4.1-LevelBadge</div>
+    
+    <div class="level-badge" id="level-tag">🏆 Level 0</div>
     
     <div class="difficulty-zones">
         <button class="btn-mode" id="m1" onclick="startGame(1)">1 หลัก</button>
@@ -115,7 +92,7 @@
 
     <div class="stats">
         <span>⏱️ <span id="time-val">0</span> วิ</span>
-        <span>⭐ <span id="score-display">0</span></span>
+        <span>⭐ <span id="score-display">0</span> คะแนน</span>
     </div>
 
     <div class="math-grid">
@@ -139,7 +116,7 @@
 
 <script>
     let n1, n2, ans, curD = 1, totalScore = 0, sec = 0, timer, hList = [];
-    let lastLevelAwarded = 0; // เก็บด่านล่าสุดที่ผ่าน
+    let lastLevelAwarded = 0;
 
     const ins = Array.from(document.querySelectorAll('.num-in'));
     ins.forEach((input, i) => {
@@ -177,6 +154,16 @@
         }
     }
 
+    function updateScoreUI() {
+        const scoreDisplay = document.getElementById('score-display');
+        scoreDisplay.innerText = totalScore;
+        scoreDisplay.className = totalScore < 0 ? 'negative-score' : '';
+        
+        // Update Level Badge
+        let currentLvl = Math.max(0, Math.floor(totalScore / 100));
+        document.getElementById('level-tag').innerText = `🏆 Level ${currentLvl}`;
+    }
+
     function checkAnswer() {
         let uStr = "";
         for(let i=5; i>=0; i--) { let v = document.getElementById('a'+i).value; if(v!=="") uStr += v; }
@@ -194,9 +181,7 @@
             document.getElementById('result-text').innerHTML = "<span style='color:red'>ผิดครับ -10</span>";
         }
 
-        const scoreDisplay = document.getElementById('score-display');
-        scoreDisplay.innerText = totalScore;
-        scoreDisplay.className = totalScore < 0 ? 'negative-score' : '';
+        updateScoreUI();
         addHistory(isRight, uNum);
 
         const btn = document.getElementById('main-btn');
@@ -208,14 +193,12 @@
         if (totalScore > 0 && totalScore % 100 === 0 && totalScore > lastLevelAwarded) {
             lastLevelAwarded = totalScore;
             let level = totalScore / 100;
-            document.getElementById('pop-desc').innerText = `คุณได้สะสมครบ ${totalScore} คะแนนแล้ว\nเก่งมาก! ผ่านด่านที่ ${level}`;
+            document.getElementById('pop-desc').innerText = `ยินดีด้วย! คุณสะสมครบ ${totalScore} คะแนน\nผ่านเข้าสู่ Level ${level} แล้ว!`;
             document.getElementById('level-popup').style.display = 'flex';
         }
     }
 
-    function closePopup() {
-        document.getElementById('level-popup').style.display = 'none';
-    }
+    function closePopup() { document.getElementById('level-popup').style.display = 'none'; }
 
     function addHistory(isRight, uNum) {
         const list = document.getElementById('log-list');
