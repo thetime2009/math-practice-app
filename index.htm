@@ -3,148 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ฝึกบวกเลข - พร้อมเอฟเฟกต์จุดพลุ</title>
+    <title>คณิตศาสตร์ - ระบบประวัติการทำ</title>
     <link href="https://googleapis.com" rel="stylesheet">
-    <!-- นำเข้า Library จุดพลุ -->
     <script src="https://jsdelivr.net"></script>
     
     <style>
-        :root {
-            --bg-color: #f0f4f8;
-            --primary: #3498db;
-            --success: #2ecc71;
-            --carry-color: #f1c40f;
-        }
-
-        body {
-            font-family: 'Sarabun', sans-serif;
-            background-color: var(--bg-color);
-            display: flex;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .app-card {
-            background: white;
-            padding: 30px;
-            border-radius: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            text-align: center;
-            width: 100%;
-            max-width: 650px;
-        }
-
-        .difficulty-zones {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .btn-mode {
-            padding: 10px 20px;
-            border: 2px solid var(--primary);
-            background: white;
-            color: var(--primary);
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.2s;
-        }
-
+        :root { --primary: #3498db; --success: #2ecc71; --error: #e74c3c; --carry: #fffde7; }
+        body { font-family: 'Sarabun', sans-serif; background-color: #f0f4f8; display: flex; justify-content: center; padding: 20px; }
+        .app-card { background: white; padding: 30px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 650px; }
+        
+        .difficulty-zones { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .btn-mode { padding: 10px 15px; border: 2px solid var(--primary); background: white; color: var(--primary); border-radius: 12px; cursor: pointer; font-weight: bold; }
         .btn-mode:hover { background: var(--primary); color: white; }
 
-        .stats {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 20px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: #555;
-            background: #eef2f7;
-            padding: 10px;
-            border-radius: 15px;
-        }
+        .stats { display: flex; justify-content: space-around; margin-bottom: 10px; font-size: 1.1rem; font-weight: bold; color: #444; background: #eef2f7; padding: 15px; border-radius: 15px; }
+        .history-summary { font-size: 0.9rem; color: #666; margin-bottom: 20px; }
 
-        .math-grid {
-            display: inline-block;
-            margin-bottom: 20px;
-        }
+        .math-grid { display: inline-block; margin-bottom: 20px; }
+        .row { display: flex; justify-content: flex-end; align-items: center; margin-bottom: 5px; }
+        .label { font-weight: bold; color: #888; width: 80px; text-align: left; }
+        input { width: 55px; height: 65px; text-align: center; font-size: 32px; font-weight: bold; margin: 2px; border: 2px solid #ddd; border-radius: 10px; outline: none; }
+        
+        .carry-row input { background-color: var(--carry); border-color: #f1c40f; color: #d4ac0d; }
+        .answer-row { border-top: 4px solid #333; margin-top: 10px; padding-top: 10px; }
+        .answer-row input { background-color: #e8f5e9; border-color: var(--success); }
+        
+        .btn-check { width: 100%; padding: 15px; background: var(--success); color: white; border: none; border-radius: 15px; font-size: 22px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .result-box { height: 40px; margin: 15px 0; font-size: 24px; font-weight: bold; }
 
-        .row {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            margin-bottom: 5px;
-        }
-
-        .label {
-            font-weight: bold;
-            color: #888;
-            width: 80px;
-            text-align: left;
-        }
-
-        input {
-            width: 55px;
-            height: 65px;
-            text-align: center;
-            font-size: 32px;
-            font-weight: bold;
-            margin: 2px;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            outline: none;
-        }
-
-        .carry-row input {
-            background-color: #fffde7;
-            border-color: var(--carry-color);
-            color: #d4ac0d;
-        }
-
-        .answer-row {
-            border-top: 4px solid #333;
-            margin-top: 10px;
-            padding-top: 10px;
-        }
-
-        .answer-row input {
-            background-color: #e8f5e9;
-            border-color: var(--success);
-        }
-
-        .btn-check {
-            width: 100%;
-            padding: 15px;
-            background: var(--success);
-            color: white;
-            border: none;
-            border-radius: 15px;
-            font-size: 22px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-            box-shadow: 0 4px 0 #27ae60;
-        }
-
-        .btn-check:active {
-            transform: translateY(2px);
-            box-shadow: none;
-        }
-
-        .result-box {
-            height: 40px;
-            margin: 15px 0;
-            font-size: 24px;
-            font-weight: bold;
-        }
+        /* ส่วนประวัติ (History Log) */
+        .history-log { margin-top: 30px; border-top: 2px dashed #ccc; padding-top: 20px; text-align: left; max-height: 200px; overflow-y: auto; }
+        .history-item { padding: 8px; border-radius: 8px; margin-bottom: 5px; font-size: 0.95rem; border-left: 5px solid #ccc; background: #fafafa; }
+        .item-correct { border-left-color: var(--success); background: #f1fbf3; }
+        .item-wrong { border-left-color: var(--error); background: #fdf2f2; }
     </style>
 </head>
 <body>
 
 <div class="app-card">
-    <h1>✍️ แบบฝึกหัดการบวกเลข เด็กชายเพรช</h1>
+    <h1>✍️ แบบฝึกหัดบวกเลข เด็กชายเพรช</h1>
 
     <div class="difficulty-zones">
         <button class="btn-mode" onclick="startGame(1)">1 หลัก</button>
@@ -157,16 +54,19 @@
         <span>⏱️ เวลา: <span id="time">0</span> วิ</span>
         <span>⭐ คะแนน: <span id="score">0</span></span>
     </div>
+    <div class="history-summary">
+        📊 สรุปผล: ตอบไปแล้ว <span id="total-tasks">0</span> ข้อ (ถูก <span id="total-correct" style="color:green">0</span> | ผิด <span id="total-wrong" style="color:red">0</span>)
+    </div>
 
     <div class="math-grid">
         <div class="row carry-row">
             <span class="label">ตัวทด</span>
-            <input type="number" id="c5">
-            <input type="number" id="c4">
-            <input type="number" id="c3">
-            <input type="number" id="c2">
-            <input type="number" id="c1">
-            <input type="number" id="c0">
+            <input type="number" id="c5" class="num-in">
+            <input type="number" id="c4" class="num-in">
+            <input type="number" id="c3" class="num-in">
+            <input type="number" id="c2" class="num-in">
+            <input type="number" id="c1" class="num-in">
+            <input type="number" id="c0" class="num-in">
         </div>
 
         <div class="row">
@@ -191,36 +91,40 @@
 
         <div class="row answer-row">
             <span class="label">คำตอบ</span>
-            <input type="number" id="a5">
-            <input type="number" id="a4">
-            <input type="number" id="a3">
-            <input type="number" id="a2">
-            <input type="number" id="a1">
-            <input type="number" id="a0">
+            <input type="number" id="a5" class="num-in">
+            <input type="number" id="a4" class="num-in">
+            <input type="number" id="a3" class="num-in">
+            <input type="number" id="a2" class="num-in">
+            <input type="number" id="a1" class="num-in">
+            <input type="number" id="a0" class="num-in">
         </div>
     </div>
 
     <div id="result" class="result-box"></div>
     <button class="btn-check" onclick="checkAnswer()">🎯 ตรวจคำตอบ</button>
+
+    <div class="history-log" id="history-log">
+        <strong>🕒 ประวัติการทำ:</strong>
+        <div id="log-items"></div>
+    </div>
 </div>
 
 <audio id="sound-correct" src="https://soundjay.com"></audio>
 
 <script>
     let currentAns = 0;
-    let score = 0;
-    let timer = 0;
-    let timerInt;
+    let n1_val = 0, n2_val = 0;
+    let score = 0, totalAttempts = 0, correctCount = 0, wrongCount = 0;
+    let timer = 0, timerInt;
 
-    // ระบบ Input ตัวเดียวและข้ามช่อง
-    document.querySelectorAll('input[type="number"]').forEach(input => {
-        input.addEventListener('input', function() {
-            if (this.value.length > 1) this.value = this.value.slice(-1);
-            if (this.value) {
-                const allInputs = Array.from(document.querySelectorAll('input[type="number"]'));
-                const index = allInputs.indexOf(this);
-                if (index < allInputs.length - 1) allInputs[index + 1].focus();
-            }
+    const inputs = Array.from(document.querySelectorAll('.num-in'));
+    inputs.forEach((input, index) => {
+        input.addEventListener('input', (e) => {
+            if (e.target.value.length > 1) e.target.value = e.target.value.slice(-1);
+            if (e.target.value && index < inputs.length - 1) inputs[index + 1].focus();
+        });
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' && !e.target.value && index > 0) inputs[index - 1].focus();
         });
     });
 
@@ -236,12 +140,12 @@
 
         let min = Math.pow(10, digit - 1);
         let max = Math.pow(10, digit) - 1;
-        let n1 = Math.floor(Math.random() * (max - min + 1) + min);
-        let n2 = Math.floor(Math.random() * (max - min + 1) + min);
-        currentAns = n1 + n2;
+        n1_val = Math.floor(Math.random() * (max - min + 1) + min);
+        n2_val = Math.floor(Math.random() * (max - min + 1) + min);
+        currentAns = n1_val + n2_val;
 
-        fill('q1_', n1);
-        fill('q2_', n2);
+        fillNumbers('q1_', n1_val);
+        fillNumbers('q2_', n2_val);
 
         timerInt = setInterval(() => {
             timer++;
@@ -249,7 +153,7 @@
         }, 1000);
     }
 
-    function fill(prefix, num) {
+    function fillNumbers(prefix, num) {
         for(let i=0; i<=5; i++) {
             let el = document.getElementById(prefix + i);
             if(el && el.style.opacity !== "0") el.value = "";
@@ -267,25 +171,40 @@
             ansStr += document.getElementById('a' + i).value;
         }
         
-        if (parseInt(ansStr) === currentAns) {
-            // --- เอฟเฟกต์เมื่อตอบถูก ---
-            document.getElementById('result').innerHTML = "<span style='color:green'>🎉 ถูกต้องที่สุด!</span>";
-            document.getElementById('sound-correct').play();
-            
-            // เรียกใช้จุดพลุ
-            confetti({
-                particleCount: 150,
-                spread: 70,
-                origin: { y: 0.6 },
-                colors: ['#2ecc71', '#3498db', '#f1c40f', '#e74c3c']
-            });
+        let userVal = parseInt(ansStr);
+        totalAttempts++;
 
+        if (userVal === currentAns) {
+            correctCount++;
+            document.getElementById('result').innerHTML = "<span style='color:green'>🎉 ถูกต้อง!</span>";
+            document.getElementById('sound-correct').play();
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
             score += 10;
-            document.getElementById('score').innerText = score;
+            updateHistory(true, userVal);
             clearInterval(timerInt);
         } else {
-            document.getElementById('result').innerHTML = "<span style='color:red'>❌ ลองคำนวณอีกทีนะ</span>";
+            wrongCount++;
+            document.getElementById('result').innerHTML = "<span style='color:red'>❌ ลองใหม่นะ</span>";
+            updateHistory(false, userVal);
         }
+
+        document.getElementById('score').innerText = score;
+        document.getElementById('total-tasks').innerText = totalAttempts;
+        document.getElementById('total-correct').innerText = correctCount;
+        document.getElementById('total-wrong').innerText = wrongCount;
+    }
+
+    function updateHistory(isCorrect, userVal) {
+        const log = document.getElementById('log-items');
+        const item = document.createElement('div');
+        item.className = `history-item ${isCorrect ? 'item-correct' : 'item-wrong'}`;
+        
+        const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const statusText = isCorrect ? "✅ ถูก" : "❌ ผิด";
+        const userValueShow = isNaN(userVal) ? "?" : userVal;
+
+        item.innerHTML = `<strong>[${timeStr}]</strong> ${n1_val} + ${n2_val} = ${currentAns} | คุณตอบ: ${userValueShow} ${statusText}`;
+        log.prepend(item); // เอาข้อล่าสุดไว้บนสุด
     }
 
     window.onload = () => startGame(1);
