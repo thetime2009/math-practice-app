@@ -52,7 +52,7 @@
 <div class="app-card">
     <div class="version-tag">v1.6.6</div>
     <h1 class="main-title">เกมบวกเลขสายตึง</h1>
-    <span class="sub-title">ของ นายเพรช</span>
+    <span class="sub-title">ของ ธนพงษ์ เผ่าเพ็ง</span>
     
     <div class="level-badge" id="level-tag">🏆 Level 0</div>
     
@@ -73,7 +73,7 @@
 
     <div class="stats">
         <span>⏱️ <span id="time-val">0</span> วิ</span>
-        <span>⭐ <span id="score-display" style="color:#f39c12">0</span></span>
+        <span>⭐คะแนนรวม <span id="score-display" style="color:#f39c12">0</span></span>
     </div>
 
     <div class="math-table" id="math-grid">
@@ -186,7 +186,7 @@
         clearInterval(timer);
 
         let resHTML = isRight ? `<span style='color:green'>ถูกต้อง! +${point}</span>` : `<span style='color:red'>ผิดครับ -${point}</span>`;
-        resHTML += `<div class="thai-read">คำอ่าน: ${thaiRead(ans)}</div>`;
+        resHTML += `<div class="thai-read">คำตอบ: ${thaiRead(ans)}</div>`;
         document.getElementById('result-text').innerHTML = resHTML;
 
         if(isRight) totalScore += point;
