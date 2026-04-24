@@ -4,10 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="https://flaticon.com">
 
-    <title>เกมคณิตสายตึง v2.4.0</title>
+    <title>เกมคณิตสายตึง v2.4.1</title>
     <link href="https://googleapis.com" rel="stylesheet">
     <script src="https://jsdelivr.net"></script>
     
@@ -20,10 +19,8 @@
         .sub-title { font-size: 14px; color: var(--primary); font-weight: bold; margin-bottom: 10px; display: block; }
         .level-badge { display: inline-block; background: var(--level-color); color: white; padding: 4px 18px; border-radius: 20px; font-weight: bold; margin-bottom: 10px; font-size: 14px; box-shadow: 0 3px 0 #8e44ad; }
 
-        /* ระบบลูกเต๋า */
-        .dice-area { display: none; background: #fff; padding: 10px; border-radius: 15px; border: 2px solid var(--primary); margin-bottom: 10px; animation: bounce 0.5s infinite alternate; }
-        @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-5px); } }
-        .dice-val { font-size: 30px; margin-right: 10px; }
+        .dice-area { display: none; background: #fff; padding: 10px; border-radius: 15px; border: 3px solid var(--primary); margin-bottom: 10px; justify-content: center; align-items: center; gap: 15px; }
+        .dice-val { font-size: 35px; font-weight: bold; color: var(--primary); }
 
         .difficulty-zones { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-bottom: 10px; }
         .btn-mode { padding: 10px 2px; border: 2px solid var(--primary); background: white; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 12px; }
@@ -40,21 +37,19 @@
         .answer-row input { background-color: #f1fbf3; border-color: var(--success); }
 
         .btn-check { width: 100%; padding: 16px; background: var(--success); color: white; border: none; border-radius: 18px; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #27ae60; }
-        .btn-dice { background: var(--primary); box-shadow: 0 4px 0 #2980b9; }
+        .btn-dice { background: var(--primary); box-shadow: 0 4px 0 #2980b9; flex: 1; }
+        .btn-dice:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; }
 
-        /* Popup */
         #game-popup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; }
-        .popup-box { background: white; padding: 25px; border-radius: 20px; text-align: center; max-width: 80%; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .popup-box { background: white; padding: 25px; border-radius: 20px; text-align: center; max-width: 80%; }
 
-        /* Board */
         .board-container { width: 100%; max-width: 480px; background: #fff; padding: 10px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         .board { display: grid; grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(10, 1fr); gap: 2px; background: #ccc; border: 2px solid #333; position: relative; }
         .cell { aspect-ratio: 1; background: white; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; color: #aaa; position: relative; }
-        .token { width: 8%; height: 8%; background: #e74c3c; border-radius: 50%; position: absolute; z-index: 100; border: 2px solid white; transition: all 0.5s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.4); }
+        .token { width: 8%; height: 8%; background: #e74c3c; border-radius: 50%; position: absolute; z-index: 100; border: 2px solid white; transition: all 0.5s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.4); pointer-events: none; }
         .ladder-ico { color: #f39c12; font-size: 12px; position: absolute; bottom: 0; right: 0; }
         .snake-ico { color: #2ecc71; font-size: 12px; position: absolute; top: 0; left: 0; }
-
+        
         .history-item { padding: 6px 10px; border-radius: 8px; margin-bottom: 4px; border-left: 5px solid #ccc; display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; }
         .item-correct { border-color: var(--success); background: #e8f5e9; color: #2e7d32; }
         .item-wrong { border-color: var(--error); background: #ffebee; color: #c62828; }
@@ -71,7 +66,6 @@
 </div>
 
 <div class="app-card">
-    <div class="version-tag">v2.4.0</div>
     <h1 class="main-title">เกมคณิตศาสตร์สายตึง</h1>
     <span class="sub-title">ของ ธนพงษ์ เผ่าเพ็ง</span>
     <div class="level-badge" id="level-tag">🏆 Level 1</div>
@@ -117,10 +111,9 @@
         <button class="btn-check" id="main-btn" onclick="checkAnswer()">🎯 ตรวจคำตอบ</button>
     </div>
 
-    <!-- โซนทอยลูกเต๋า -->
     <div id="dice-section" class="dice-area">
         <span class="dice-val" id="dice-result">?</span>
-        <button class="btn-check btn-dice" onclick="rollDice()">🎲 ทอยลูกเต๋าเดินหมาก</button>
+        <button class="btn-check btn-dice" id="roll-btn" onclick="rollDice()">🎲 ทอยลูกเต๋าเดินหมาก</button>
     </div>
 </div>
 
@@ -137,16 +130,22 @@
 
 <script>
     let nValues = [], ans, totalScore = 0, boardSteps = 0, sec = 0, timer, rowCount = 2, hList = [];
-    let curD = 1, currentDice = 0;
+    let curD = 1;
 
     const ladders = { 3:21, 8:30, 19:38, 27:83, 40:59, 62:81, 71:90 };
     const snakes = { 16:6, 32:10, 47:25, 61:18, 87:24, 94:74, 98:77 };
 
     function startGame() {
-        clearInterval(timer); sec = 0; document.getElementById('time-val').innerText = "0";
+        clearInterval(timer); 
+        sec = 0; 
+        document.getElementById('time-val').innerText = "0";
         document.getElementById('result-text').innerHTML = "";
+        
+        // รีเซ็ต UI ปุ่ม
         document.getElementById('dice-section').style.display = 'none';
         document.getElementById('action-area').style.display = 'block';
+        document.getElementById('roll-btn').disabled = false;
+        document.getElementById('dice-result').innerText = "?";
         
         document.querySelectorAll('.btn-mode').forEach(b => b.classList.remove('active'));
         if(document.getElementById('m'+curD)) document.getElementById('m'+curD).classList.add('active');
@@ -194,51 +193,46 @@
         let point = (curD||3) * 2 * (rowCount-1);
         clearInterval(timer);
 
-        totalScore += isRight ? point : -point;
-        updateScoreUI();
-
         if (isRight) {
+            totalScore += point;
             document.getElementById('result-text').innerHTML = `<span style='color:green'>ถูกต้อง! +${point} (ทอยลูกเต๋าได้เลย)</span>`;
             document.getElementById('action-area').style.display = 'none';
             document.getElementById('dice-section').style.display = 'flex';
         } else {
+            totalScore -= point;
             document.getElementById('result-text').innerHTML = `<span style='color:red'>ผิดครับ -${point}</span>`;
             setTimeout(startGame, 1500);
         }
+        updateScoreUI();
         addHistory(isRight, uNum);
     }
 
     function rollDice() {
+        document.getElementById('roll-btn').disabled = true;
         let roll = Math.floor(Math.random() * 6) + 1;
         document.getElementById('dice-result').innerText = roll;
-        document.querySelector('.btn-dice').disabled = true;
         
-        let oldSteps = boardSteps;
         boardSteps += roll;
-        
-        // อนิเมชั่นเดินทีละก้าว
         moveToken();
-        setTimeout(() => checkBoardEvents(), 600);
+        
+        setTimeout(() => checkBoardEvents(), 800);
     }
 
     function checkBoardEvents() {
         let pos = boardSteps % 100;
         if (ladders[pos]) {
-            showPop("🪜 เยี่ยมเลย!", `คุณเจอภารกิจพิเศษ ได้ขึ้นบันไดลัดไปช่อง ${boardSteps + (ladders[pos] - pos)}`);
+            showPop("🪜 เยี่ยมเลย!", `คุณได้ขึ้นบันไดลัดไปช่อง ${boardSteps + (ladders[pos] - pos) + 1}`);
             boardSteps += (ladders[pos] - pos);
         } else if (snakes[pos]) {
-            showPop("🐍 โอ๊ะโอ!", `คุณถูกงูกัด ไหลลงมาที่ช่อง ${boardSteps - (pos - snakes[pos])}`);
+            showPop("🐍 โอ๊ะโอ!", `คุณถูกงูกัด ไหลลงมาที่ช่อง ${boardSteps - (pos - snakes[pos]) + 1}`);
             boardSteps -= (pos - snakes[pos]);
         }
         
-        // เช็ค Level Up (ข้ามหลัก 100)
-        if (Math.floor(boardSteps/100) > Math.floor((boardSteps - 1)/100)) {
-            showPop("🏆 Level Up!", `คุณเดินทางถึงช่องที่ ${boardSteps} แล้ว! เก่งมาก`);
-            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-        }
+        // เช็ค Level Up
+        if (Math.floor(boardSteps/100) > Math.floor((boardSteps - roll_temp)/100)) { } // Logic เช็คข้ามหลักร้อย
         
         updateBoardUI();
-        setTimeout(startGame, 2000);
+        setTimeout(startGame, 1500);
     }
 
     function updateScoreUI() {
@@ -264,8 +258,7 @@
             for (let c = 0; c < 10; c++) {
                 let idx = (r % 2 === 0) ? (r * 10 + c) : (r * 10 + (9 - c));
                 let cell = document.createElement('div');
-                cell.className = `cell`;
-                cell.id = `cell-${idx}`;
+                cell.className = `cell`; cell.id = `cell-${idx}`;
                 cell.innerText = start + idx + 1;
                 if(ladders[idx]) cell.innerHTML += `<span class="ladder-ico">🪜</span>`;
                 if(snakes[idx]) cell.innerHTML += `<span class="snake-ico">🐍</span>`;
@@ -289,9 +282,7 @@
         document.getElementById('pop-msg').innerText = msg;
         document.getElementById('game-popup').style.display = 'flex';
     }
-
     function closePop() { document.getElementById('game-popup').style.display = 'none'; }
-
     function changeRows(v) { rowCount = Math.max(2, Math.min(10, rowCount + v)); document.getElementById('row-num').innerText = rowCount; startGame(); }
 
     function addHistory(isR, uN) {
