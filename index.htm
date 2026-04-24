@@ -4,71 +4,99 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="https://flaticon.com">
 
-    <title>เกมคณิตสายตึง v2.2.0</title>
+    <title>เกมคณิตสายตึง ธนพงษ์ เผ่าเพ็ง v2.3.1</title>
     <link href="https://googleapis.com" rel="stylesheet">
     <script src="https://jsdelivr.net"></script>
     
     <style>
         :root { --primary: #3498db; --success: #2ecc71; --error: #e74c3c; --carry: #fffde7; --level-color: #9b59b6; --gold: #f1c40f; }
         body { font-family: 'Sarabun', sans-serif; background-color: #f0f4f8; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
-        .app-card { background: white; padding: 15px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 480px; position: relative; margin-bottom: 20px; }
         
-        .main-title { font-size: 22px; font-weight: bold; color: #2c3e50; margin: 5px 0; }
+        .app-card { background: white; padding: 15px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 480px; position: relative; margin-bottom: 15px; }
+        .main-title { font-size: 22px; font-weight: bold; color: #2c3e50; margin: 5px 0 0 0; }
         .sub-title { font-size: 14px; color: var(--primary); font-weight: bold; margin-bottom: 10px; display: block; }
-        .level-badge { display: inline-block; background: var(--level-color); color: white; padding: 4px 18px; border-radius: 20px; font-weight: bold; margin-bottom: 10px; font-size: 14px; }
+        .version-tag { position: absolute; top: 12px; right: 18px; font-size: 10px; color: #ccc; }
+        .level-badge { display: inline-block; background: var(--level-color); color: white; padding: 4px 18px; border-radius: 20px; font-weight: bold; margin-bottom: 10px; font-size: 14px; box-shadow: 0 3px 0 #8e44ad; }
 
         .op-switch { display: flex; gap: 5px; margin-bottom: 10px; background: #eee; padding: 5px; border-radius: 12px; }
         .btn-op { flex: 1; padding: 8px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
         .btn-op.active { background: white; color: var(--primary); }
 
         .difficulty-zones { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-bottom: 10px; }
-        .btn-mode { padding: 8px; border: 2px solid var(--primary); background: white; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 12px; }
+        .btn-mode { padding: 10px 2px; border: 2px solid var(--primary); background: white; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 12px; }
         .btn-mode.active { background: var(--primary); color: white; }
-        
-        .stats { display:flex; justify-content:space-around; font-weight:bold; background:#f8f9fa; padding:10px; border-radius:15px; margin-bottom:10px; border: 1px solid #eee; }
-        #score-display { transition: color 0.3s; }
-        .score-red { color: var(--error) !important; }
 
-        /* ตารางคณิตศาสตร์ */
-        .math-table { display: grid; grid-template-columns: 50px 1fr; gap: 4px; align-items: center; margin-bottom: 10px; }
-        .digit-group { display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; }
-        input { width: 100%; max-width: 40px; height: 45px; text-align: center; font-size: 20px; font-weight: bold; border: 2px solid #eee; border-radius: 8px; outline: none; }
-        .carry-row input { height: 30px; background-color: var(--carry); border-color: var(--gold); font-size: 14px; }
-        .answer-row { border-top: 3px solid #444; padding-top: 8px; margin-top: 5px; grid-column: 1 / span 2; display: grid; grid-template-columns: 50px 1fr; gap: 4px; align-items: center; }
+        .row-controls { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 10px; background: #fdfdfd; padding: 8px; border-radius: 15px; border: 2px dashed #ddd; }
+        .btn-row-edit { width: 30px; height: 30px; border-radius: 50%; border: none; font-size: 18px; font-weight: bold; cursor: pointer; color: white; display: flex; align-items: center; justify-content: center; }
+
+        .stats { display:flex; justify-content:space-around; font-weight:bold; background:#f8f9fa; padding:10px; border-radius:15px; margin-bottom:10px; border: 1px solid #eee; }
+
+        .math-table { display: grid; grid-template-columns: 55px 1fr; gap: 4px; align-items: center; margin-bottom: 10px; max-height: 35vh; overflow-y: auto; border: 1px solid #eee; padding: 8px; border-radius: 15px; }
+        .row-label { font-weight: bold; color: #bbb; font-size: 10px; text-align: left; }
+        .digit-group { display: grid; grid-template-columns: repeat(6, 1fr); gap: 3px; justify-items: end; }
+        input { width: 100%; max-width: 42px; height: 48px; text-align: center; font-size: 22px; font-weight: bold; border: 2px solid #eee; border-radius: 8px; outline: none; box-sizing: border-box; }
+        .carry-row input { height: 32px; background-color: var(--carry); border: 2px solid var(--gold); color: #d4ac0d; font-size: 14px; }
+        .answer-row { border-top: 3px solid #444; padding-top: 8px; margin-top: 5px; grid-column: 1 / span 2; display: grid; grid-template-columns: 55px 1fr; gap: 4px; align-items: center; }
         .answer-row input { background-color: #f1fbf3; border-color: var(--success); }
 
-        .btn-check { width: 100%; padding: 15px; background: var(--success); color: white; border: none; border-radius: 18px; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #27ae60; }
-        
-        /* กระดานบันไดงู */
+        .btn-check { width: 100%; padding: 16px; background: var(--success); color: white; border: none; border-radius: 18px; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 5px 0 #27ae60; }
+        .thai-read { font-size: 15px; color: #555; background: #fff9c4; padding: 8px; border-radius: 12px; margin-top: 5px; font-weight: normal; }
+
+        /* แก้ไขกระดานและตัวเบี้ย */
         .board-container { width: 100%; max-width: 480px; background: #fff; padding: 10px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .board { display: grid; grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(10, 1fr); gap: 2px; background: #ddd; border: 2px solid #333; position: relative; }
-        .cell { aspect-ratio: 1; background: white; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; position: relative; color: #999; }
+        .board { display: grid; grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(10, 1fr); gap: 2px; background: #ccc; border: 2px solid #333; position: relative; }
+        .cell { aspect-ratio: 1; background: white; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; color: #aaa; position: relative; }
         .cell-alt { background: #e3f2fd; }
-        .token { width: 80%; height: 80%; background: #e74c3c; border-radius: 50%; position: absolute; z-index: 10; border: 2px solid white; transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
-        .ladder-icon { color: #f39c12; font-size: 12px; position: absolute; bottom: 1px; right: 1px; }
-        .snake-icon { color: #2ecc71; font-size: 12px; position: absolute; top: 1px; left: 1px; }
+        
+        /* แก้ไขขนาดตัวเบี้ยตรงนี้ */
+        .token { 
+            width: 8%; /* ปรับจาก 80% เป็น 8% เพื่อให้พอดีช่อง */
+            height: 8%; 
+            background: #e74c3c; 
+            border-radius: 50%; 
+            position: absolute; 
+            z-index: 100; 
+            border: 2px solid white; 
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+            pointer-events: none; /* ป้องกันการคลิกโดนตัวเบี้ย */
+        }
+        
+        .ladder-ico { color: #f39c12; font-size: 12px; position: absolute; bottom: 0; right: 0; }
+        .snake-ico { color: #2ecc71; font-size: 12px; position: absolute; top: 0; left: 0; }
 
         .history-log { margin-top: 15px; text-align: left; }
-        .history-item { padding: 6px 10px; border-radius: 8px; margin-bottom: 4px; border-left: 5px solid #ccc; display: flex; justify-content: space-between; font-size: 11px; }
-        .item-correct { border-color: var(--success); background: #e8f5e9; }
-        .item-wrong { border-color: var(--error); background: #ffebee; }
+        .history-item { padding: 8px 12px; border-radius: 10px; margin-bottom: 5px; border-left: 8px solid #ccc; display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; }
+        .item-correct { border-color: var(--success); background: #e8f5e9; color: #2e7d32; }
+        .item-wrong { border-color: var(--error); background: #ffebee; color: #c62828; }
+
+        #install-btn { background: #2c3e50; color: white; padding: 10px; border-radius: 10px; margin-bottom: 10px; font-size: 12px; border: none; width: 100%; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div class="app-card">
-    <h1 class="main-title">เกมคณิตศาสตร์สายตึง</h1>
+    <button id="install-btn" onclick="alert('iOS: แชร์ > เพิ่มลงในหน้าจอโฮม\nAndroid: 3จุด > ติดตั้งแอป')">📲 ติดตั้งแอปไว้บนมือถือ</button>
+    <div class="version-tag">v2.3.1</div>
+    <h1 class="main-title">เกมบวกเลขสายตึง</h1>
     <span class="sub-title">ของ ธนพงษ์ เผ่าเพ็ง</span>
     <div class="level-badge" id="level-tag">🏆 Level 1</div>
 
     <div class="op-switch">
-        <button id="op-add" class="btn-op active" onclick="setOp('add')">➕ บวก</button>
-        <button id="op-mul" class="btn-op" onclick="setOp('mul')">✖️ คูณ</button>
+        <button id="op-add" class="btn-op active" onclick="setOp('add')">➕ การบวก</button>
+        <button id="op-mul" class="btn-op" onclick="setOp('mul')">✖️ การคูณ</button>
     </div>
 
     <div id="mode-selectors" class="difficulty-zones"></div>
+
+    <div id="row-ctrl" class="row-controls">
+        <button class="btn-row-edit" style="background:var(--error)" onclick="changeRows(-1)">-</button>
+        <div style="font-weight:bold; font-size:14px;">บวกกัน <span id="row-num">2</span> จำนวน</div>
+        <button class="btn-row-edit" style="background:var(--success)" onclick="changeRows(1)">+</button>
+    </div>
 
     <div class="stats">
         <span>⏱️ <span id="time-val">0</span> วิ</span>
@@ -76,31 +104,31 @@
     </div>
 
     <div class="math-table">
-        <div style="font-size:10px; color:#999;">ตัวทด</div>
+        <div class="row-label">ตัวทด</div>
         <div class="digit-group carry-row">
             <input type="number" id="c5" class="num-in"><input type="number" id="c4" class="num-in"><input type="number" id="c3" class="num-in"><input type="number" id="c2" class="num-in"><input type="number" id="c1" class="num-in">
             <div style="width:100%;"></div> 
         </div>
         <div id="quest-rows-container" style="display: contents;"></div>
         <div class="answer-row">
-            <div style="font-size:10px; color:#999;">คำตอบ</div>
+            <div class="row-label">คำตอบ</div>
             <div class="digit-group">
                 <input type="number" id="a5" class="num-in"><input type="number" id="a4" class="num-in"><input type="number" id="a3" class="num-in"><input type="number" id="a2" class="num-in"><input type="number" id="a1" class="num-in"><input type="number" id="a0" class="num-in">
             </div>
         </div>
     </div>
 
-    <div id="result-text" style="min-height:35px; font-weight:bold; font-size:14px; margin:5px;"></div>
+    <div id="result-text" style="min-height:35px; font-weight:bold; margin:5px;"></div>
     <button class="btn-check" id="main-btn" onclick="checkAnswer()">🎯 ตรวจคำตอบ</button>
 </div>
 
-<!-- กระดานบันไดงู -->
 <div class="board-container">
-    <div style="font-weight:bold; margin-bottom:5px; font-size:14px; display:flex; justify-content: space-between;">
+    <div style="font-weight:bold; margin-bottom:5px; font-size:13px; display:flex; justify-content:space-between;">
         <span>🐍 กระดานบันไดงู</span>
-        <span id="board-range">1 - 100</span>
+        <span id="board-range" style="color:var(--primary)">1 - 100</span>
     </div>
     <div class="board" id="game-board">
+        <!-- เบี้ยจะถูกย้ายที่ด้วย JS -->
         <div class="token" id="player-token"></div>
     </div>
     <div class="history-log">
@@ -109,17 +137,17 @@
 </div>
 
 <script>
-    let currentOp = 'add', nValues = [], ans, totalScore = 0, sec = 0, timer, hList = [];
-    let curD1 = 1, curD2 = 1;
+    let currentOp = 'add', nValues = [], ans, totalScore = 0, sec = 0, timer, rowCount = 2, hList = [];
+    let curD = 1, curD1 = 1, curD2 = 1; 
 
-    // ตั้งค่าบันไดและงู (อ้างอิงตำแหน่ง 0-99 ภายในเลเวล)
-    const ladders = { 2:23, 8:28, 12:27, 22:36, 54:65, 69:79, 17:37 };
-    const snakes = { 14:4, 33:26, 63:58, 86:74, 93:73, 90:70, 97:77 };
+    const ladders = { 3:21, 8:30, 19:38, 27:83, 40:59, 62:81, 71:90 };
+    const snakes = { 16:6, 32:10, 47:25, 61:18, 87:24, 94:74, 98:77 };
 
     function setOp(op) {
         currentOp = op;
         document.getElementById('op-add').classList.toggle('active', op === 'add');
         document.getElementById('op-mul').classList.toggle('active', op === 'mul');
+        document.getElementById('row-ctrl').style.display = (op === 'add') ? 'flex' : 'none';
         renderModes(); startGame();
     }
 
@@ -127,46 +155,46 @@
         const container = document.getElementById('mode-selectors');
         container.innerHTML = "";
         if (currentOp === 'add') {
-            for(let i=1; i<=3; i++) container.innerHTML += `<button class="btn-mode" id="m${i}" onclick="startWithD(${i})">${i} หลัก</button>`;
+            for(let i=1; i<=5; i++) container.innerHTML += `<button class="btn-mode" id="m${i}" onclick="curD=${i};startGame()">${i} หลัก</button>`;
+            container.innerHTML += `<button class="btn-mode" id="m0" onclick="curD=0;startGame()" style="color:#f39c12">🔀 สุ่ม</button>`;
         } else {
-            [[2,1],[3,1],[2,2]].forEach((s, idx) => {
-                container.innerHTML += `<button class="btn-mode" id="mul${idx}" onclick="startMul(${s[0]},${s[1]},${idx})">${s[0]}x${s[1]}</button>`;
+            [2,3,4].forEach((s, idx) => {
+                container.innerHTML += `<button class="btn-mode" id="mul${idx}" onclick="curD1=${s};curD2=1;startGame()">${s}x1</button>`;
             });
         }
     }
 
-    function startWithD(d) { curD1 = d; startGame(); }
-    function startMul(d1, d2, idx) { curD1 = d1; curD2 = d2; startGame(); }
+    function changeRows(v) { rowCount = Math.max(2, Math.min(10, rowCount + v)); document.getElementById('row-num').innerText = rowCount; startGame(); }
 
     function startGame() {
         clearInterval(timer); sec = 0; document.getElementById('time-val').innerText = "0";
         document.getElementById('result-text').innerHTML = "";
         const btn = document.getElementById('main-btn'); btn.innerText = "🎯 ตรวจคำตอบ"; btn.onclick = checkAnswer;
         const container = document.getElementById('quest-rows-container');
-        container.innerHTML = ""; nValues = []; 
+        container.innerHTML = ""; nValues = []; ans = 0;
+
+        let d = (curD === 0) ? Math.floor(Math.random()*5)+1 : curD;
         
-        let d = curD1;
         if (currentOp === 'add') {
-            for(let r=1; r<=2; r++) {
+            for(let r=1; r<=rowCount; r++) {
                 let v = Math.floor(Math.random()*(Math.pow(10, d)-Math.pow(10, d-1)))+Math.pow(10, d-1);
-                nValues.push(v);
-                container.innerHTML += `<div style="font-size:10px; color:#999;">#${r}</div><div class="digit-group" id="row-${r}"></div>`;
-                renderRowDigits(`row-${r}`, v);
+                nValues.push(v); ans += v;
+                container.innerHTML += `<div class="row-label">#${r}</div><div class="digit-group" id="row-${r}"></div>`;
+                renderDigits(`row-${r}`, v);
             }
-            ans = nValues[0] + nValues[1];
         } else {
             let v1 = Math.floor(Math.random()*(Math.pow(10, curD1)-Math.pow(10, curD1-1)))+Math.pow(10, curD1-1);
-            let v2 = Math.floor(Math.random()*(Math.pow(10, curD2)-Math.pow(10, curD2-1)))+Math.pow(10, curD2-1);
+            let v2 = Math.floor(Math.random()*9)+1;
             nValues = [v1, v2]; ans = v1 * v2;
-            container.innerHTML += `<div style="font-size:10px; color:#999;">ตั้ง</div><div class="digit-group" id="row-1"></div><div style="font-size:10px; color:#999;">คูณ</div><div class="digit-group" id="row-2"></div>`;
-            renderRowDigits(`row-1`, v1); renderRowDigits(`row-2`, v2);
+            container.innerHTML += `<div class="row-label">ตั้ง</div><div class="digit-group" id="row-1"></div><div class="row-label">คูณ</div><div class="digit-group" id="row-2"></div>`;
+            renderDigits(`row-1`, v1); renderDigits(`row-2`, v2);
         }
         document.querySelectorAll('.num-in').forEach(el => el.value = "");
-        setupInputLogic();
+        setupInputs();
         timer = setInterval(() => { sec++; document.getElementById('time-val').innerText = sec; }, 1000);
     }
 
-    function renderRowDigits(id, num) {
+    function renderDigits(id, num) {
         const row = document.getElementById(id);
         let arr = num.toString().split('').reverse();
         for(let i=5; i>=0; i--) {
@@ -176,7 +204,7 @@
         }
     }
 
-    function setupInputLogic() {
+    function setupInputs() {
         const ins = Array.from(document.querySelectorAll('.num-in'));
         ins.forEach((input, i) => {
             input.oninput = (e) => {
@@ -192,27 +220,18 @@
         for(let i=5; i>=0; i--) { let v = document.getElementById('a'+i).value; if(v!=="") uStr += v; }
         if(uStr === "") return;
         let uNum = parseInt(uStr), isRight = (uNum === ans);
-        let point = isRight ? 10 : -10;
+        let point = (currentOp === 'add') ? (curD * 2) * (rowCount - 1) : (curD1 + 1) * 2;
         clearInterval(timer);
 
-        totalScore += point;
+        totalScore += isRight ? point : -point;
         if(totalScore < 0) totalScore = 0;
 
-        // เช็คบันได/งู
-        let currentPos = totalScore % 100;
-        let bonusTxt = "";
-        if(ladders[currentPos]) { 
-            let old = totalScore;
-            totalScore += (ladders[currentPos] - currentPos);
-            bonusTxt = " 🪜 ขึ้นบันไดลัด!";
-        } else if(snakes[currentPos]) {
-            totalScore -= (currentPos - snakes[currentPos]);
-            bonusTxt = " 🐍 ตกงู!";
-        }
+        let pos = totalScore % 100;
+        if(ladders[pos]) totalScore += (ladders[pos] - pos);
+        else if(snakes[pos]) totalScore -= (pos - snakes[pos]);
 
         updateUI();
-        document.getElementById('result-text').innerHTML = (isRight ? `<span style='color:green'>ถูกต้อง! +10${bonusTxt}</span>` : `<span style='color:red'>ผิดครับ -10${bonusTxt}</span>`);
-        
+        document.getElementById('result-text').innerHTML = (isRight ? `<span style='color:green'>ถูกต้อง! +${point}</span>` : `<span style='color:red'>ผิดครับ -${point}</span>`) + `<div class="thai-read">คำอ่าน: ${thaiRead(ans)}</div>`;
         addHistory(isRight, uNum);
         document.getElementById('main-btn').innerText = "🎲 ข้อต่อไป";
         document.getElementById('main-btn').onclick = () => startGame();
@@ -220,31 +239,27 @@
 
     function updateUI() {
         document.getElementById('score-display').innerText = totalScore;
-        let level = Math.floor(totalScore / 100) + 1;
-        document.getElementById('level-tag').innerText = `🏆 Level ${level}`;
-        document.getElementById('board-range').innerText = `${(level-1)*100 + 1} - ${level*100}`;
-        createBoard(level);
-        moveToken();
+        let lvl = Math.floor(totalScore / 100) + 1;
+        document.getElementById('level-tag').innerText = `🏆 Level ${lvl}`;
+        document.getElementById('board-range').innerText = `${(lvl-1)*100 + 1} - ${lvl*100}`;
+        createBoard(lvl);
+        setTimeout(moveToken, 100); // รอสร้างบอร์ดเสร็จแล้วค่อยเลื่อน
     }
 
     function createBoard(lvl) {
         const board = document.getElementById('game-board');
         const token = document.getElementById('player-token');
-        board.innerHTML = "";
-        board.appendChild(token);
-        
-        let startNum = (lvl - 1) * 100;
+        board.innerHTML = ""; board.appendChild(token);
+        let start = (lvl - 1) * 100;
         for (let r = 9; r >= 0; r--) {
             for (let c = 0; c < 10; c++) {
-                let cellIdx = (r % 2 === 0) ? (r * 10 + c) : (r * 10 + (9 - c));
+                let idx = (r % 2 === 0) ? (r * 10 + c) : (r * 10 + (9 - c));
                 let cell = document.createElement('div');
-                cell.className = `cell ${(r+c)%2===0 ? 'cell-alt' : ''}`;
-                cell.id = `cell-${cellIdx}`;
-                cell.innerText = startNum + cellIdx + 1;
-                
-                if(ladders[cellIdx]) cell.innerHTML += `<span class="ladder-icon">🪜</span>`;
-                if(snakes[cellIdx]) cell.innerHTML += `<span class="snake-icon">🐍</span>`;
-                
+                cell.className = `cell ${(r+c)%2===0?'cell-alt':''}`;
+                cell.id = `cell-${idx}`;
+                cell.innerText = start + idx + 1;
+                if(ladders[idx]) cell.innerHTML += `<span class="ladder-ico">🪜</span>`;
+                if(snakes[idx]) cell.innerHTML += `<span class="snake-ico">🐍</span>`;
                 board.appendChild(cell);
             }
         }
@@ -252,18 +267,33 @@
 
     function moveToken() {
         let pos = totalScore % 100;
-        const targetCell = document.getElementById(`cell-${pos}`);
+        const target = document.getElementById(`cell-${pos}`);
         const token = document.getElementById('player-token');
-        if(targetCell) {
-            token.style.left = targetCell.offsetLeft + 'px';
-            token.style.top = targetCell.offsetTop + 'px';
+        if(target && token) {
+            token.style.left = (target.offsetLeft + (target.offsetWidth * 0.1)) + 'px';
+            token.style.top = (target.offsetTop + (target.offsetHeight * 0.1)) + 'px';
         }
+    }
+
+    function thaiRead(n) {
+        if(n===0) return "ศูนย์";
+        const u = ["","สิบ","ร้อย","พัน","หมื่น","แสน","ล้าน"], d = ["ศูนย์","หนึ่ง","สอง","สาม","สี่","ห้า","หก","เจ็ด","แปด","เก้า"];
+        let s = n.toString(), res = "";
+        for(let i=0; i<s.length; i++) {
+            let v = parseInt(s[i]), p = s.length - i - 1;
+            if(v!==0) {
+                if(p===1 && v===1) res += ""; else if(p===1 && v===2) res += "ยี่";
+                else if(p===0 && v===1 && s.length>1) res += "เอ็ด"; else res += d[v];
+                res += u[p];
+            }
+        }
+        return res;
     }
 
     function addHistory(isR, uN) {
         const list = document.getElementById('log-list');
-        let txt = nValues.join(currentOp === 'add' ? '+' : 'x') + ` = ${ans}`;
-        let item = `<div class="history-item ${isR?'item-correct':'item-wrong'}"><span>${txt}</span><span>ตอบ: ${uN} ${isR?'✅':'❌'}</span></div>`;
+        let txt = nValues.join(currentOp==='add'?'+':'x') + ` = ${ans}`;
+        let item = `<div class="history-item ${isR?'item-correct':'item-wrong'}"><span>${txt.substring(0,25)}</span><span>ตอบ: ${uN} ${isR?'✅':'❌'}</span></div>`;
         list.innerHTML = item + list.innerHTML;
         if(list.children.length > 10) list.lastElementChild.remove();
     }
