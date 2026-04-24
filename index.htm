@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="https://flaticon.com">
 
-    <title>เกมคณิตสายตึง v2.5.0</title>
+    <title>เกมคณิตสายตึง v2.6.0</title>
     <link href="https://googleapis.com" rel="stylesheet">
     <script src="https://jsdelivr.net"></script>
     
@@ -25,8 +25,7 @@
         .btn-mode.active { background: var(--primary); color: white; }
 
         .stats { display:flex; justify-content:space-around; font-weight:bold; background:#f8f9fa; padding:10px; border-radius:15px; margin-bottom:10px; border: 1px solid #eee; }
-        #score-display.score-red { color: var(--error); }
-
+        
         .math-table { display: grid; grid-template-columns: 55px 1fr; gap: 4px; align-items: center; margin-bottom: 10px; max-height: 30vh; overflow-y: auto; padding: 8px; border-radius: 15px; border: 1px solid #eee; }
         .digit-group { display: grid; grid-template-columns: repeat(6, 1fr); gap: 3px; justify-items: end; }
         input { width: 100%; max-width: 42px; height: 48px; text-align: center; font-size: 22px; font-weight: bold; border: 2px solid #eee; border-radius: 8px; outline: none; box-sizing: border-box; }
@@ -34,20 +33,22 @@
         .answer-row { border-top: 3px solid #444; padding-top: 8px; margin-top: 5px; grid-column: 1 / span 2; display: grid; grid-template-columns: 55px 1fr; gap: 4px; align-items: center; }
         .answer-row input { background-color: #f1fbf3; border-color: var(--success); }
 
-        .btn-check { width: 100%; padding: 16px; background: var(--success); color: white; border: none; border-radius: 18px; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #27ae60; transition: 0.2s; }
+        .btn-check { width: 100%; padding: 16px; background: var(--success); color: white; border: none; border-radius: 18px; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #27ae60; }
         .btn-dice { background: var(--primary); box-shadow: 0 4px 0 #2980b9; }
         .btn-next { background: var(--next); box-shadow: 0 4px 0 #d35400; }
 
         .thai-read { font-size: 15px; color: #555; background: #fff9c4; padding: 8px; border-radius: 12px; margin-top: 8px; font-weight: normal; line-height: 1.4; border: 1px solid #f1c40f; }
 
-        /* Popup */
+        /* Popup Styles */
         #game-popup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center; }
-        .popup-box { background: white; padding: 25px; border-radius: 20px; text-align: center; max-width: 80%; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .popup-box { background: white; padding: 25px; border-radius: 20px; text-align: center; max-width: 80%; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 3px solid var(--primary); }
+        .dice-display { font-size: 80px; margin: 10px 0; }
 
         /* Board */
         .board-container { width: 100%; max-width: 480px; background: #fff; padding: 10px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         .board { display: grid; grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(10, 1fr); gap: 2px; background: #ccc; border: 2px solid #333; position: relative; }
-        .cell { aspect-ratio: 1; background: white; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; color: #aaa; position: relative; }
+        .cell { aspect-ratio: 1; background: white; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; color: #999; position: relative; }
+        .cell-alt { background: #f0f4f8; }
         .token { width: 8%; height: 8%; background: #e74c3c; border-radius: 50%; position: absolute; z-index: 100; border: 2px solid white; transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 2px 4px rgba(0,0,0,0.4); pointer-events: none; }
         .ladder-ico { color: #f39c12; font-size: 12px; position: absolute; bottom: 0; right: 0; }
         .snake-ico { color: #2ecc71; font-size: 12px; position: absolute; top: 0; left: 0; }
@@ -61,15 +62,15 @@
 
 <div id="game-popup">
     <div class="popup-box">
-        <h2 id="pop-title" style="margin:0;"></h2>
+        <h2 id="pop-title" style="margin:0; color:var(--primary);"></h2>
+        <div id="dice-visual" class="dice-display" style="display:none;">🎲</div>
         <p id="pop-msg" style="font-size:18px; margin:15px 0; color:#555;"></p>
-        <button style="padding:10px 30px; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;" onclick="closePop()">ตกลง</button>
+        <button id="pop-btn" style="padding:10px 30px; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;" onclick="closePop()">ตกลง</button>
     </div>
 </div>
 
 <div class="app-card">
-    <button style="background:#2c3e50; color:white; padding:8px; border-radius:10px; margin-bottom:10px; font-size:11px; border:none; width:100%; cursor:pointer;" onclick="alert('iOS: แชร์ > เพิ่มลงหน้าจอโฮม\nAndroid: 3จุด > ติดตั้งแอป')">📲 วิธีติดตั้งแอปไว้บนมือถือ</button>
-    <div class="version-tag">v2.5.0</div>
+    <div class="version-tag">v2.6.0</div>
     <h1 class="main-title">เกมคณิตศาสตร์สายตึง</h1>
     <span class="sub-title">ของ ธนพงษ์ เผ่าเพ็ง</span>
     <div class="level-badge" id="level-tag">🏆 Level 1</div>
@@ -91,7 +92,7 @@
 
     <div class="stats">
         <span>⏱️ <span id="time-val">0</span> วิ</span>
-        <span>⭐ คะแนนรวม: <span id="score-display">0</span></span>
+        <span>⭐ คะแนนสะสม: <span id="score-display">0</span></span>
     </div>
 
     <div class="math-table">
@@ -110,10 +111,7 @@
     </div>
 
     <div id="result-area" style="min-height:30px; margin-bottom:5px;"></div>
-    
-    <div id="btn-box">
-        <button class="btn-check" id="main-btn" onclick="checkAnswer()">🎯 ตรวจคำตอบ</button>
-    </div>
+    <div id="btn-box"><button class="btn-check" id="main-btn" onclick="checkAnswer()">🎯 ตรวจคำตอบ</button></div>
 </div>
 
 <div class="board-container">
@@ -121,16 +119,12 @@
         <span>🐍 กระดานเดินหมาก</span>
         <span id="board-range">1 - 100</span>
     </div>
-    <div class="board" id="game-board">
-        <div class="token" id="player-token"></div>
-    </div>
+    <div class="board" id="game-board"><div class="token" id="player-token"></div></div>
     <div class="history-log"><div id="log-list"></div></div>
 </div>
 
 <script>
-    let nValues = [], ans, totalScore = 0, boardSteps = 0, sec = 0, timer, rowCount = 2, hList = [];
-    let curD = 1;
-
+    let nValues = [], ans, totalScore = 0, boardSteps = 0, timer, rowCount = 2, hList = [], curD = 1, curLevel = 1;
     const ladders = { 3:21, 8:30, 19:38, 27:83, 40:59, 62:81, 71:90 };
     const snakes = { 16:6, 32:10, 47:25, 61:18, 87:24, 94:74, 98:77 };
 
@@ -150,19 +144,10 @@
     }
 
     function startGame() {
-        clearInterval(timer); sec = 0; 
-        document.getElementById('time-val').innerText = "0";
         document.getElementById('result-area').innerHTML = "";
-        
         const btn = document.getElementById('main-btn');
-        btn.innerText = "🎯 ตรวจคำตอบ";
-        btn.className = "btn-check";
-        btn.onclick = checkAnswer;
-        btn.disabled = false;
+        btn.innerText = "🎯 ตรวจคำตอบ"; btn.className = "btn-check"; btn.onclick = checkAnswer;
         
-        document.querySelectorAll('.btn-mode').forEach(b => b.classList.remove('active'));
-        if(document.getElementById('m'+curD)) document.getElementById('m'+curD).classList.add('active');
-
         const container = document.getElementById('quest-rows-container');
         container.innerHTML = ""; nValues = []; ans = 0;
         let d = (curD === 0) ? Math.floor(Math.random()*5)+1 : curD;
@@ -175,7 +160,6 @@
         }
         document.querySelectorAll('.num-in').forEach(el => el.value = "");
         setupInputs();
-        timer = setInterval(() => { sec++; document.getElementById('time-val').innerText = sec; }, 1000);
     }
 
     function renderDigits(id, num) {
@@ -203,87 +187,81 @@
         if(uStr === "") return;
         let uNum = parseInt(uStr), isRight = (uNum === ans);
         let point = (curD||3) * 2 * (rowCount-1);
-        clearInterval(timer);
 
         let resHTML = isRight ? `<div style='color:green; font-weight:bold;'>ถูกต้อง! +${point} (ทอยลูกเต๋าได้เลย)</div>` : `<div style='color:red; font-weight:bold;'>ผิดครับ -${point}</div>`;
         resHTML += `<div class="thai-read">เฉลย: ${ans} <br>คำอ่าน: ${thaiRead(ans)}</div>`;
         document.getElementById('result-area').innerHTML = resHTML;
 
         totalScore += isRight ? point : -point;
-        if(totalScore < 0) totalScore = 0;
         document.getElementById('score-display').innerText = totalScore;
-        document.getElementById('score-display').className = totalScore < 0 ? "score-red" : "";
+        document.getElementById('score-display').style.color = totalScore < 0 ? "red" : "#2c3e50";
 
         const btn = document.getElementById('main-btn');
         if (isRight) {
-            btn.innerText = "🎲 ทอยลูกเต๋าเดินหมาก";
-            btn.className = "btn-check btn-dice";
-            btn.onclick = rollDice;
+            btn.innerText = "🎲 ทอยลูกเต๋าเดินหมาก"; btn.className = "btn-check btn-dice"; btn.onclick = rollDice;
         } else {
-            btn.innerText = "🎲 สุ่มเล่นต่อ";
-            btn.className = "btn-check btn-next";
-            btn.onclick = startGame;
+            btn.innerText = "🎲 สุ่มเล่นต่อ"; btn.className = "btn-check btn-next"; btn.onclick = startGame;
         }
         addHistory(isRight, uNum);
     }
 
     function rollDice() {
-        const btn = document.getElementById('main-btn');
-        btn.disabled = true;
+        const btn = document.getElementById('main-btn'); btn.disabled = true;
         let roll = Math.floor(Math.random() * 6) + 1;
+        showPop("🎲 ทอยลูกเต๋า", `คุณทอยได้แต้ม: ${roll}`, true);
         
+        // เก็บแต้มไว้เดินหลังปิด Popup
+        window.pendingRoll = roll;
+    }
+
+    function moveSequence(roll) {
         boardSteps += roll;
         moveToken();
-        
         setTimeout(() => checkBoardEvents(), 1000);
     }
 
     function checkBoardEvents() {
         let pos = boardSteps % 100;
         if (ladders[pos]) {
-            showPop("🪜 เยี่ยมเลย!", `พุ่งขึ้นบันไดไปช่องที่ ${boardSteps + (ladders[pos] - pos) + 1}`);
+            showPop("🪜 บันไดลัด!", `วาร์ปขึ้นไปยังช่องที่ ${boardSteps + (ladders[pos] - pos) + 1}`);
             boardSteps += (ladders[pos] - pos);
             setTimeout(moveToken, 500);
         } else if (snakes[pos]) {
-            showPop("🐍 โอ๊ะโอ!", `ถูกงูกัด ไหลลงมาช่องที่ ${boardSteps - (pos - snakes[pos]) + 1}`);
+            showPop("🐍 ตกงู!", `ไหลลงมายังช่องที่ ${boardSteps - (pos - snakes[pos]) + 1}`);
             boardSteps -= (pos - snakes[pos]);
             setTimeout(moveToken, 500);
         }
 
         // เช็ค Level Up
-        let currentLevel = Math.floor(boardSteps / 100) + 1;
-        let displayedLevel = parseInt(document.getElementById('level-tag').innerText.replace('🏆 Level ', ''));
-        if (currentLevel > displayedLevel) {
-            showPop("🏆 Level Up!", `ยอดเยี่ยม! คุณเข้าสู่ Level ${currentLevel}`);
+        let newLevel = Math.floor(boardSteps / 100) + 1;
+        if (newLevel > curLevel) {
+            curLevel = newLevel;
+            showPop("🏆 LEVEL UP!", `ยินดีด้วย! คุณก้าวเข้าสู่ Level ${curLevel} แล้ว`);
             confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
             updateBoardUI();
         }
 
         const btn = document.getElementById('main-btn');
-        btn.innerText = "🎲 สุ่มเล่นต่อ";
-        btn.className = "btn-check btn-next";
-        btn.onclick = startGame;
-        btn.disabled = false;
+        btn.innerText = "🎲 สุ่มเล่นต่อ"; btn.className = "btn-check btn-next"; btn.onclick = startGame; btn.disabled = false;
     }
 
     function updateBoardUI() {
-        let lvl = Math.floor(boardSteps / 100) + 1;
-        document.getElementById('level-tag').innerText = `🏆 Level ${lvl}`;
-        document.getElementById('board-range').innerText = `${(lvl-1)*100 + 1} - ${lvl*100}`;
-        createBoard(lvl);
+        document.getElementById('level-tag').innerText = `🏆 Level ${curLevel}`;
+        document.getElementById('board-range').innerText = `${(curLevel-1)*100 + 1} - ${curLevel*100}`;
+        createBoard();
         moveToken();
     }
 
-    function createBoard(lvl) {
+    function createBoard() {
         const board = document.getElementById('game-board');
         const token = document.getElementById('player-token');
         board.innerHTML = ""; board.appendChild(token);
-        let start = (lvl - 1) * 100;
+        let start = (curLevel - 1) * 100;
         for (let r = 9; r >= 0; r--) {
             for (let c = 0; c < 10; c++) {
                 let idx = (r % 2 === 0) ? (r * 10 + c) : (r * 10 + (9 - c));
                 let cell = document.createElement('div');
-                cell.className = `cell`; cell.id = `cell-${idx}`;
+                cell.className = `cell ${(r+c)%2===0?'cell-alt':''}`; cell.id = `cell-${idx}`;
                 cell.innerText = start + idx + 1;
                 if(ladders[idx]) cell.innerHTML += `<span class="ladder-ico">🪜</span>`;
                 if(snakes[idx]) cell.innerHTML += `<span class="snake-ico">🐍</span>`;
@@ -302,12 +280,23 @@
         }
     }
 
-    function showPop(t, m) {
+    function showPop(t, m, isDice = false) {
         document.getElementById('pop-title').innerText = t;
         document.getElementById('pop-msg').innerText = m;
+        document.getElementById('dice-visual').style.display = isDice ? 'block' : 'none';
+        document.getElementById('dice-visual').innerText = isDice ? ['','⚀','⚁','⚂','⚃','⚄','⚅'][window.pendingRoll || 0] : '';
         document.getElementById('game-popup').style.display = 'flex';
     }
-    function closePop() { document.getElementById('game-popup').style.display = 'none'; }
+
+    function closePop() {
+        document.getElementById('game-popup').style.display = 'none';
+        if (window.pendingRoll) {
+            let r = window.pendingRoll;
+            window.pendingRoll = null;
+            moveSequence(r);
+        }
+    }
+    
     function changeRows(v) { rowCount = Math.max(2, Math.min(10, rowCount + v)); document.getElementById('row-num').innerText = rowCount; startGame(); }
 
     function addHistory(isR, uN) {
