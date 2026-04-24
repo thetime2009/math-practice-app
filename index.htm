@@ -3,54 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>เกมคณิตสายตึง v2.6.1 (Fixed)</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="apple-touch-icon" href="https://flaticon.com">
+
+    <title>เกมคณิตสายตึง v2.7.0</title>
     <link href="https://googleapis.com" rel="stylesheet">
     <script src="https://jsdelivr.net"></script>
+    
     <style>
-        :root { --primary: #3498db; --success: #2ecc71; --error: #e74c3c; --carry: #fffde7; --level-color: #9b59b6; --next: #e67e22; }
+        :root { --primary: #3498db; --success: #2ecc71; --error: #e74c3c; --carry: #fffde7; --level-color: #9b59b6; --next: #e67e22; --gold: #f1c40f; }
         body { font-family: 'Sarabun', sans-serif; background-color: #f0f4f8; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
+        
         .app-card { background: white; padding: 15px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 480px; position: relative; margin-bottom: 15px; }
         .main-title { font-size: 22px; font-weight: bold; color: #2c3e50; margin: 5px 0 0 0; }
         .sub-title { font-size: 14px; color: var(--primary); font-weight: bold; margin-bottom: 10px; display: block; }
-        .level-badge { display: inline-block; background: var(--level-color); color: white; padding: 4px 18px; border-radius: 20px; font-weight: bold; margin-bottom: 10px; font-size: 14px; }
+        .level-badge { display: inline-block; background: var(--level-color); color: white; padding: 4px 18px; border-radius: 20px; font-weight: bold; margin-bottom: 10px; font-size: 14px; box-shadow: 0 3px 0 #8e44ad; }
+
         .difficulty-zones { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-bottom: 10px; }
         .btn-mode { padding: 10px 2px; border: 2px solid var(--primary); background: white; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 12px; }
         .btn-mode.active { background: var(--primary); color: white; }
+
         .stats { display:flex; justify-content:space-around; font-weight:bold; background:#f8f9fa; padding:10px; border-radius:15px; margin-bottom:10px; border: 1px solid #eee; }
+        
         .math-table { display: grid; grid-template-columns: 55px 1fr; gap: 4px; align-items: center; margin-bottom: 10px; max-height: 30vh; overflow-y: auto; padding: 8px; border-radius: 15px; border: 1px solid #eee; }
         .digit-group { display: grid; grid-template-columns: repeat(6, 1fr); gap: 3px; justify-items: end; }
-        input { width: 100%; max-width: 42px; height: 48px; text-align: center; font-size: 22px; font-weight: bold; border: 2px solid #eee; border-radius: 8px; outline: none; box-sizing: border-box; }
-        .carry-row input { height: 32px; background-color: var(--carry); border: 2px solid #f1c40f; color: #d4ac0d; }
+        input { width: 100%; max-width: 42px; height: 48px; text-align: center; font-size: 22px; font-weight: bold; border: 2px solid #eee; border-radius: 10px; outline: none; box-sizing: border-box; }
+        .carry-row input { height: 32px; background-color: var(--carry); border: 2px solid var(--gold); color: #d4ac0d; font-size: 14px; }
         .answer-row { border-top: 3px solid #444; padding-top: 8px; margin-top: 5px; grid-column: 1 / span 2; display: grid; grid-template-columns: 55px 1fr; gap: 4px; align-items: center; }
         .answer-row input { background-color: #f1fbf3; border-color: var(--success); }
-        .btn-check { width: 100%; padding: 16px; background: var(--success); color: white; border: none; border-radius: 18px; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #27ae60; }
+
+        .btn-check { width: 100%; padding: 16px; background: var(--success); color: white; border: none; border-radius: 18px; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #27ae60; transition: 0.2s; }
         .btn-dice { background: var(--primary); box-shadow: 0 4px 0 #2980b9; }
         .btn-next { background: var(--next); box-shadow: 0 4px 0 #d35400; }
+
         .thai-read { font-size: 14px; color: #555; background: #fff9c4; padding: 8px; border-radius: 12px; margin-top: 8px; border: 1px solid #f1c40f; }
+
+        /* Popup */
         #game-popup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center; }
         .popup-box { background: white; padding: 25px; border-radius: 20px; text-align: center; max-width: 80%; border: 3px solid var(--primary); }
+
+        /* Board */
         .board-container { width: 100%; max-width: 480px; background: #fff; padding: 10px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         .board { display: grid; grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(10, 1fr); gap: 2px; background: #ccc; border: 2px solid #333; position: relative; }
         .cell { aspect-ratio: 1; background: white; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; color: #999; position: relative; }
         .cell-alt { background: #f0f4f8; }
-        .token { width: 8%; height: 8%; background: #e74c3c; border-radius: 50%; position: absolute; z-index: 100; border: 2px solid white; transition: all 0.8s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.4); pointer-events: none; }
+        .token { width: 8%; height: 8%; background: #e74c3c; border-radius: 50%; position: absolute; z-index: 100; border: 2px solid white; transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 2px 4px rgba(0,0,0,0.4); pointer-events: none; }
+        .ladder-ico { color: #f39c12; font-size: 12px; position: absolute; bottom: 0; right: 0; }
+        .snake-ico { color: #2ecc71; font-size: 12px; position: absolute; top: 0; left: 0; }
+        
         .history-item { padding: 6px 10px; border-radius: 8px; margin-bottom: 4px; border-left: 5px solid #ccc; display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; }
-        .item-correct { border-color: var(--success); background: #e8f5e9; color: #2e7d32; }
-        .item-wrong { border-color: var(--error); background: #ffebee; color: #c62828; }
+        .item-correct { border-color: var(--success); background: #e8f5e9; }
+        .item-wrong { border-color: var(--error); background: #ffebee; }
     </style>
 </head>
 <body>
 
 <div id="game-popup">
     <div class="popup-box">
-        <h2 id="pop-title" style="margin:0;"></h2>
+        <h2 id="pop-title" style="margin:0; color:var(--primary);"></h2>
         <div id="dice-visual" style="font-size:60px; margin:10px 0; display:none;">🎲</div>
         <p id="pop-msg" style="font-size:16px; margin:15px 0; color:#555;"></p>
-        <button id="pop-btn" style="padding:10px 30px; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:bold;" onclick="closePop()">ตกลง</button>
+        <button id="pop-btn" style="padding:10px 30px; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;" onclick="closePop()">ตกลง</button>
     </div>
 </div>
 
 <div class="app-card">
+    <div class="version-tag">v2.7.0</div>
     <h1 class="main-title">เกมคณิตศาสตร์สายตึง</h1>
     <span class="sub-title">ของ ธนพงษ์ เผ่าเพ็ง</span>
     <div class="level-badge" id="level-tag">🏆 Level 1</div>
@@ -65,9 +83,9 @@
     </div>
 
     <div class="stats" style="background:#fff; border: 2px dashed #ddd; padding: 5px;">
-        <button style="border:none; background:var(--error); color:white; width:25px; border-radius:5px;" onclick="changeRows(-1)">-</button>
+        <button style="border:none; background:var(--error); color:white; width:25px; border-radius:5px; cursor:pointer;" onclick="changeRows(-1)">-</button>
         <span style="font-size:12px;">บวกกัน <span id="row-num">2</span> จำนวน</span>
-        <button style="border:none; background:var(--success); color:white; width:25px; border-radius:5px;" onclick="changeRows(1)">+</button>
+        <button style="border:none; background:var(--success); color:white; width:25px; border-radius:5px; cursor:pointer;" onclick="changeRows(1)">+</button>
     </div>
 
     <div class="stats">
@@ -96,8 +114,8 @@
 
 <div class="board-container">
     <div style="font-weight:bold; margin-bottom:5px; font-size:12px; display:flex; justify-content:space-between;">
-        <span>🐍 กระดานเดินหมาก</span>
-        <span id="board-range">1 - 100</span>
+        <span>🐍 กระดานเดินหมาก (1-100)</span>
+        <span>📍 พิกัด: <span id="board-pos">1</span></span>
     </div>
     <div class="board" id="game-board"><div class="token" id="player-token"></div></div>
     <div class="history-log"><div id="log-list"></div></div>
@@ -191,29 +209,29 @@
     function processMovement() {
         let roll = window.currentRoll;
         window.currentRoll = null;
+        let oldSteps = boardSteps;
         boardSteps += roll;
 
-        // เช็ค Level Up ก่อนเดิน
-        let targetLevel = Math.floor(boardSteps / 100) + 1;
-        if (targetLevel > curLevel) {
-            curLevel = targetLevel;
-            updateBoardUI(); // วาดกระดานใหม่ทันที
-            showPop("🏆 LEVEL UP!", `ยินดีด้วย! คุณเข้าสู่ Level ${curLevel} แล้ว`);
+        // เช็ค Level Up เมื่อครบ 100
+        if (Math.floor(boardSteps / 100) > Math.floor(oldSteps / 100)) {
+            curLevel++;
+            document.getElementById('level-tag').innerText = `🏆 Level ${curLevel}`;
+            showPop("🏆 LEVEL UP!", `ยินดีด้วย! คุณผ่านรอบที่ ${curLevel-1} และเริ่มรอบใหม่ใน Level ${curLevel}`);
             confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
         }
         
         moveToken();
-        setTimeout(() => checkSpecialTiles(), 1000);
+        setTimeout(() => checkSpecialTiles(), 900);
     }
 
     function checkSpecialTiles() {
         let pos = boardSteps % 100;
         if (ladders[pos]) {
-            showPop("🪜 บันไดลัด!", `วาร์ปไปยังช่องที่ ${boardSteps + (ladders[pos] - pos) + 1}`);
+            showPop("🪜 บันไดลัด!", `ขึ้นบันไดลัดไปยังช่องที่ ${pos + (ladders[pos] - pos) + 1}`);
             boardSteps += (ladders[pos] - pos);
             setTimeout(moveToken, 600);
         } else if (snakes[pos]) {
-            showPop("🐍 ตกงู!", `ไหลลงมายังช่องที่ ${boardSteps - (pos - snakes[pos]) + 1}`);
+            showPop("🐍 ตกงู!", `ไหลลงมายังช่องที่ ${pos - (pos - snakes[pos]) + 1}`);
             boardSteps -= (pos - snakes[pos]);
             setTimeout(moveToken, 600);
         }
@@ -221,24 +239,16 @@
         btn.innerText = "🎲 สุ่มเล่นต่อ"; btn.className = "btn-check btn-next"; btn.onclick = startGame; btn.disabled = false;
     }
 
-    function updateBoardUI() {
-        document.getElementById('level-tag').innerText = `🏆 Level ${curLevel}`;
-        document.getElementById('board-range').innerText = `${(curLevel-1)*100 + 1} - ${curLevel*100}`;
-        createBoard();
-        moveToken();
-    }
-
     function createBoard() {
         const board = document.getElementById('game-board');
         const token = document.getElementById('player-token');
         board.innerHTML = ""; board.appendChild(token);
-        let startVal = (curLevel - 1) * 100;
         for (let r = 9; r >= 0; r--) {
             for (let c = 0; c < 10; c++) {
                 let idx = (r % 2 === 0) ? (r * 10 + c) : (r * 10 + (9 - c));
                 let cell = document.createElement('div');
                 cell.className = `cell ${(r+c)%2===0?'cell-alt':''}`; cell.id = `cell-${idx}`;
-                cell.innerText = startVal + idx + 1;
+                cell.innerText = idx + 1; // ล็อคตัวเลข 1-100 เสมอ
                 if(ladders[idx]) cell.innerHTML += `<span class="ladder-ico">🪜</span>`;
                 if(snakes[idx]) cell.innerHTML += `<span class="snake-ico">🐍</span>`;
                 board.appendChild(cell);
@@ -248,6 +258,7 @@
 
     function moveToken() {
         let pos = boardSteps % 100;
+        document.getElementById('board-pos').innerText = pos + 1;
         const target = document.getElementById(`cell-${pos}`);
         const token = document.getElementById('player-token');
         if(target && token) {
@@ -267,6 +278,9 @@
     function closePop() {
         document.getElementById('game-popup').style.display = 'none';
         if(window.currentRoll) processMovement();
+        // กรณีผ่านด่าน ให้แน่ใจว่าเกมยังไปต่อได้
+        const btn = document.getElementById('main-btn');
+        if (btn.innerText.includes("สุ่มเล่นต่อ")) btn.disabled = false;
     }
 
     function changeRows(v) { rowCount = Math.max(2, Math.min(10, rowCount + v)); document.getElementById('row-num').innerText = rowCount; startGame(); }
@@ -278,7 +292,7 @@
         if(list.children.length > 10) list.lastElementChild.remove();
     }
 
-    window.onload = () => { updateBoardUI(); startGame(); };
+    window.onload = () => { createBoard(); moveToken(); startGame(); };
 </script>
 </body>
 </html>
