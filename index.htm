@@ -7,88 +7,79 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="https://flaticon.com">
 
-    <title>เกมบวกเลขสายตึงของ นายเพรช v1.8.1</title>
+    <title>เกมคณิตสายตึงของ ธนพงษ์ เผ่าเพ็ง v2.0.0</title>
     <link href="https://googleapis.com" rel="stylesheet">
     
     <style>
         :root { --primary: #3498db; --success: #2ecc71; --error: #e74c3c; --carry: #fffde7; --level-color: #9b59b6; --gold: #f1c40f; }
         body { font-family: 'Sarabun', sans-serif; background-color: #f0f4f8; margin: 0; padding: 10px; display: flex; justify-content: center; }
-        
         .app-card { background: white; padding: 20px 15px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 480px; position: relative; }
         
-        .install-guide { background: #2c3e50; color: white; padding: 12px; border-radius: 12px; margin-bottom: 15px; font-size: 13px; display: block; border: none; width: 100%; cursor: pointer; }
         .main-title { font-size: 22px; font-weight: bold; color: #2c3e50; margin: 5px 0 0 0; }
         .sub-title { font-size: 14px; color: var(--primary); font-weight: bold; margin-bottom: 10px; display: block; }
-        .version-tag { position: absolute; top: 12px; right: 18px; font-size: 10px; color: #ccc; }
-        .level-badge { display: inline-block; background: var(--level-color); color: white; padding: 4px 18px; border-radius: 20px; font-weight: bold; margin-bottom: 10px; font-size: 14px; }
         
+        /* สลับโหมด บวก/คูณ */
+        .op-switch { display: flex; gap: 5px; margin-bottom: 15px; background: #eee; padding: 5px; border-radius: 15px; }
+        .btn-op { flex: 1; padding: 10px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn-op.active { background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); color: var(--primary); }
+
         .difficulty-zones { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px; }
-        .btn-mode { padding: 12px 2px; border: 2px solid var(--primary); background: white; color: var(--primary); border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 12px; }
+        .btn-mode { padding: 10px 2px; border: 2px solid var(--primary); background: white; color: var(--primary); border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 12px; }
         .btn-mode.active { background: var(--primary); color: white; }
         
-        .row-controls { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 15px; background: #fff; padding: 10px; border-radius: 15px; border: 2px dashed #ddd; }
-        .btn-row-edit { width: 35px; height: 35px; border-radius: 50%; border: none; font-size: 20px; font-weight: bold; cursor: pointer; color: white; }
-        .btn-plus { background: var(--success); }
-        .btn-minus { background: var(--error); }
-
         .stats { display:flex; justify-content:space-around; font-weight:bold; background:#f8f9fa; padding:10px; border-radius:15px; margin-bottom:10px; border: 1px solid #eee; }
-        
-        /* สไตล์คะแนนปกติและติดลบ */
-        #score-display { transition: color 0.3s ease; }
-        .score-red { color: var(--error) !important; text-shadow: 0 0 2px rgba(231, 76, 60, 0.2); }
-        .score-normal { color: #333; }
+        #score-display { transition: color 0.3s; }
+        .score-red { color: var(--error) !important; }
 
-        .math-table { display: grid; grid-template-columns: 60px 1fr; gap: 4px; align-items: center; margin-bottom: 15px; max-height: 40vh; overflow-y: auto; padding-right: 5px; }
+        .math-table { display: grid; grid-template-columns: 60px 1fr; gap: 4px; align-items: center; margin-bottom: 15px; max-height: 40vh; overflow-y: auto; padding: 10px; border: 1px solid #eee; border-radius: 15px; }
         .row-label { font-weight: bold; color: #bbb; font-size: 11px; text-align: left; }
         .digit-group { display: grid; grid-template-columns: repeat(6, 1fr); gap: 3px; justify-items: end; }
         
-        input { width: 100%; max-width: 44px; height: 52px; text-align: center; font-size: 24px; font-weight: bold; border: 2px solid #eee; border-radius: 10px; outline: none; box-sizing: border-box; }
-        .carry-row input { height: 38px; background-color: var(--carry); border: 2px solid var(--gold); color: #d4ac0d; }
+        input { width: 100%; max-width: 44px; height: 50px; text-align: center; font-size: 22px; font-weight: bold; border: 2px solid #eee; border-radius: 10px; outline: none; box-sizing: border-box; }
+        .carry-row input { height: 35px; background-color: var(--carry); border: 2px solid var(--gold); color: #d4ac0d; font-size: 14px; }
         
         .answer-row { border-top: 3px solid #444; padding-top: 10px; margin-top: 5px; grid-column: 1 / span 2; display: grid; grid-template-columns: 60px 1fr; gap: 4px; align-items: center; }
         .answer-row input { background-color: #f1fbf3; border-color: var(--success); }
 
         .btn-check { width: 100%; padding: 18px; background: var(--success); color: white; border: none; border-radius: 18px; font-size: 22px; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 5px 0 #27ae60; }
-        .thai-read { font-size: 16px; color: #555; background: #fff9c4; padding: 8px; border-radius: 12px; margin-top: 5px; }
+        .thai-read { font-size: 15px; color: #555; background: #fff9c4; padding: 8px; border-radius: 12px; margin-top: 5px; }
+        
+        /* ประวัติแยกสี */
         .history-log { margin-top: 20px; border-top: 1px dashed #ddd; padding-top: 15px; text-align: left; }
-        .history-item { padding: 8px 12px; border-radius: 10px; margin-bottom: 6px; border-left: 5px solid #ccc; background: #fdfdfd; display: flex; justify-content: space-between; font-size: 11px; }
+        .history-item { padding: 8px 12px; border-radius: 10px; margin-bottom: 6px; border-left: 8px solid #ccc; display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; }
+        .item-correct { border-color: var(--success); background: #e8f5e9; color: #2e7d32; }
+        .item-wrong { border-color: var(--error); background: #ffebee; color: #c62828; }
     </style>
 </head>
 <body>
 
 <div class="app-card">
-    <button class="install-guide" onclick="showInstallInfo()">📲 วิธีติดตั้งแอปไว้บนมือถือ</button>
-    <div class="version-tag">v1.8.1</div>
-    <h1 class="main-title">เกมบวกเลขสายตึง</h1>
+    <h1 class="main-title">เกมคณิตศาสตร์สายตึง</h1>
     <span class="sub-title">ของ ธนพงษ์ เผ่าเพ็ง</span>
     
-    <div class="level-badge" id="level-tag">🏆 Level 0</div>
-    
-    <div class="difficulty-zones">
-        <button class="btn-mode" id="m1" onclick="selectMode(1)">1 หลัก</button>
-        <button class="btn-mode" id="m2" onclick="selectMode(2)">2 หลัก</button>
-        <button class="btn-mode" id="m3" onclick="selectMode(3)">3 หลัก</button>
-        <button class="btn-mode" id="m4" onclick="selectMode(4)">4 หลัก</button>
-        <button class="btn-mode" id="m5" onclick="selectMode(5)">5 หลัก</button>
-        <button class="btn-mode" id="m0" onclick="selectMode(0)" style="color:#f39c12">🔀 สุ่ม</button>
+    <div class="op-switch">
+        <button id="op-add" class="btn-op active" onclick="setOp('add')">➕ การบวก</button>
+        <button id="op-mul" class="btn-op" onclick="setOp('mul')">✖️ การคูณ</button>
     </div>
 
-    <div class="row-controls">
-        <button class="btn-row-edit btn-minus" onclick="changeRows(-1)">−</button>
-        <div style="font-weight:bold; min-width: 140px;">บวกกัน <span id="row-num">2</span> จำนวน</div>
-        <button class="btn-row-edit btn-plus" onclick="changeRows(1)">+</button>
+    <div id="mode-selectors" class="difficulty-zones"></div>
+
+    <div id="row-ctrl" class="stats" style="background:#fff; border: 2px dashed #ddd;">
+        <button style="border:none; background:var(--error); color:white; width:30px; border-radius:5px;" onclick="changeRows(-1)">-</button>
+        <span>บวกกัน <span id="row-num">2</span> จำนวน</span>
+        <button style="border:none; background:var(--success); color:white; width:30px; border-radius:5px;" onclick="changeRows(1)">+</button>
     </div>
 
     <div class="stats">
         <span>⏱️ <span id="time-val">0</span> วิ</span>
-        <span>⭐คะแนนรวม <span id="score-display" class="score-normal">0</span></span>
+        <span>⭐ คะแนนรวม: <span id="score-display">0</span></span>
     </div>
 
     <div class="math-table" id="math-grid">
         <div class="row-label">ตัวทด</div>
         <div class="digit-group carry-row">
             <input type="number" id="c5" class="num-in"><input type="number" id="c4" class="num-in"><input type="number" id="c3" class="num-in"><input type="number" id="c2" class="num-in"><input type="number" id="c1" class="num-in">
-            <div style="width: 100%; max-width: 44px; height: 38px; visibility: hidden;"></div> 
+            <div style="width: 100%; max-width: 44px; height: 35px; visibility: hidden;"></div> 
         </div>
         <div id="quest-rows-container" style="display: contents;"></div>
         <div class="answer-row">
@@ -109,70 +100,89 @@
 </div>
 
 <script>
-    function showInstallInfo() {
-        const ua = navigator.userAgent.toLowerCase();
-        if (ua.indexOf('iphone') > -1 || ua.indexOf('ipad') > -1) alert("วิธีติดตั้งบน iPhone:\n1. กดปุ่ม 'แชร์'\n2. เลือก 'เพิ่มลงในหน้าจอโฮม'");
-        else alert("วิธีติดตั้งบน Android:\n1. กดปุ่ม '3 จุด'\n2. เลือก 'ติดตั้งแอป'");
+    let currentOp = 'add', nValues = [], ans, totalScore = 0, sec = 0, timer, rowCount = 2, hList = [];
+    let curD1 = 1, curD2 = 1; // สำหรับตัวตั้งและตัวคูณ
+
+    function setOp(op) {
+        currentOp = op;
+        document.getElementById('op-add').classList.toggle('active', op === 'add');
+        document.getElementById('op-mul').classList.toggle('active', op === 'mul');
+        document.getElementById('row-ctrl').style.display = (op === 'add') ? 'flex' : 'none';
+        renderModes();
+        startGame();
     }
 
-    let nValues = [], ans, selectedMode = 1, curD = 1, totalScore = 0, sec = 0, timer, rowCount = 2, hList = [];
-
-    function thaiRead(num) {
-        if (num === 0) return "ศูนย์";
-        const units = ["", "สิบ", "ร้อย", "พัน", "หมื่น", "แสน", "ล้าน"];
-        const digits = ["ศูนย์", "หนึ่ง", "สอง", "สาม", "สี่", "ห้า", "หก", "เจ็ด", "แปด", "เก้า"];
-        let str = num.toString(), result = "";
-        for (let i = 0; i < str.length; i++) {
-            let d = parseInt(str[i]), pos = str.length - i - 1;
-            if (d !== 0) {
-                if (pos === 1 && d === 1) result += "";
-                else if (pos === 1 && d === 2) result += "ยี่";
-                else if (pos === 0 && d === 1 && str.length > 1) result += "เอ็ด";
-                else result += digits[d];
-                result += units[pos];
-            }
+    function renderModes() {
+        const container = document.getElementById('mode-selectors');
+        container.innerHTML = "";
+        if (currentOp === 'add') {
+            for(let i=1; i<=5; i++) container.innerHTML += `<button class="btn-mode" id="m${i}" onclick="startWithD(${i})">${i} หลัก</button>`;
+            container.innerHTML += `<button class="btn-mode" id="m0" onclick="startWithD(0)" style="color:#f39c12">🔀 สุ่ม</button>`;
+        } else {
+            const mSet = [[2,1],[3,1],[2,2],[3,2],[4,1],[4,2]];
+            mSet.forEach((s, idx) => {
+                container.innerHTML += `<button class="btn-mode" id="mul${idx}" onclick="startMul(${s[0]}, ${s[1]}, ${idx})">${s[0]}x${s[1]}</button>`;
+            });
         }
-        return result;
     }
 
-    function changeRows(val) {
-        rowCount = Math.max(2, Math.min(10, rowCount + val));
-        document.getElementById('row-num').innerText = rowCount;
-        startGame(selectedMode === 0 ? Math.floor(Math.random() * 5) + 1 : selectedMode);
-    }
-
-    function selectMode(d) { selectedMode = d; startGame(d === 0 ? Math.floor(Math.random() * 5) + 1 : d); }
-
-    function startGame(d) {
-        curD = d; clearInterval(timer); sec = 0;
-        document.getElementById('time-val').innerText = "0";
-        document.getElementById('result-text').innerHTML = "";
-        const btn = document.getElementById('main-btn');
-        btn.innerText = "🎯 ตรวจคำตอบ"; btn.onclick = checkAnswer;
+    function startWithD(d) { curD1 = d; startGame(); }
+    function startMul(d1, d2, idx) { 
+        curD1 = d1; curD2 = d2; 
         document.querySelectorAll('.btn-mode').forEach(b => b.classList.remove('active'));
-        document.getElementById('m' + selectedMode).classList.add('active');
+        document.getElementById('mul'+idx).classList.add('active');
+        startGame(); 
+    }
+
+    function changeRows(v) { rowCount = Math.max(2, Math.min(10, rowCount + v)); document.getElementById('row-num').innerText = rowCount; startGame(); }
+
+    function startGame() {
+        clearInterval(timer); sec = 0; document.getElementById('time-val').innerText = "0";
+        document.getElementById('result-text').innerHTML = "";
+        const btn = document.getElementById('main-btn'); btn.innerText = "🎯 ตรวจคำตอบ"; btn.onclick = checkAnswer;
+        
+        if(currentOp === 'add') {
+            document.querySelectorAll('.btn-mode').forEach(b => b.classList.remove('active'));
+            if(document.getElementById('m'+curD1)) document.getElementById('m'+curD1).classList.add('active');
+        }
 
         const container = document.getElementById('quest-rows-container');
-        container.innerHTML = ""; nValues = []; ans = 0;
-        let min = Math.pow(10, d-1), max = Math.pow(10, d)-1;
+        container.innerHTML = ""; nValues = []; ans = (currentOp === 'add') ? 0 : 1;
 
-        for(let r=1; r<=rowCount; r++) {
-            let val = Math.floor(Math.random()*(max-min+1)+min);
-            nValues.push(val); ans += val;
-            container.innerHTML += `<div class="row-label">#${r}</div><div class="digit-group">
-                <input type="text" id="q${r}_5" readonly style="opacity:0"><input type="text" id="q${r}_4" readonly><input type="text" id="q${r}_3" readonly><input type="text" id="q${r}_2" readonly><input type="text" id="q${r}_1" readonly><input type="text" id="q${r}_0" readonly>
-            </div>`;
+        if (currentOp === 'add') {
+            let d = curD1 === 0 ? Math.floor(Math.random()*5)+1 : curD1;
+            let min = Math.pow(10, d-1), max = Math.pow(10, d)-1;
+            for(let r=1; r<=rowCount; r++) {
+                let v = Math.floor(Math.random()*(max-min+1)+min);
+                nValues.push(v); ans += v;
+                container.innerHTML += `<div class="row-label">ตัวเลข ${r}</div><div class="digit-group" id="row-${r}"></div>`;
+                renderRowDigits(`row-${r}`, v);
+            }
+        } else {
+            let v1 = Math.floor(Math.random()*(Math.pow(10, curD1)-Math.pow(10, curD1-1)))+Math.pow(10, curD1-1);
+            let v2 = Math.floor(Math.random()*(Math.pow(10, curD2)-Math.pow(10, curD2-1)))+Math.pow(10, curD2-1);
+            nValues = [v1, v2]; ans = v1 * v2;
+            container.innerHTML += `<div class="row-label">ตัวตั้ง</div><div class="digit-group" id="row-1"></div>`;
+            container.innerHTML += `<div class="row-label">ตัวคูณ</div><div class="digit-group" id="row-2"></div>`;
+            renderRowDigits(`row-1`, v1); renderRowDigits(`row-2`, v2);
         }
 
-        nValues.forEach((num, idx) => {
-            let arr = num.toString().split('').reverse();
-            for(let i=0; i<=5; i++) {
-                let el = document.getElementById(`q${idx+1}_${i}`);
-                if(el) el.value = arr[i] || (el.style.opacity === "0" ? "" : "");
-            }
-        });
-
         document.querySelectorAll('.num-in').forEach(el => el.value = "");
+        setupInputLogic();
+        timer = setInterval(() => { sec++; document.getElementById('time-val').innerText = sec; }, 1000);
+    }
+
+    function renderRowDigits(id, num) {
+        const row = document.getElementById(id);
+        let arr = num.toString().split('').reverse();
+        for(let i=5; i>=0; i--) {
+            let val = arr[i] || "";
+            let opac = (arr[i] !== undefined) ? 1 : 0;
+            row.innerHTML += `<input type="text" value="${val}" readonly style="opacity:${opac}">`;
+        }
+    }
+
+    function setupInputLogic() {
         const ins = Array.from(document.querySelectorAll('.num-in'));
         ins.forEach((input, i) => {
             input.oninput = (e) => {
@@ -181,51 +191,58 @@
             };
             input.onkeydown = (e) => { if (e.key === 'Backspace' && !e.target.value && i > 0) ins[i-1].focus(); };
         });
-        timer = setInterval(() => { sec++; document.getElementById('time-val').innerText = sec; }, 1000);
     }
 
     function checkAnswer() {
         let uStr = "";
-        for(let i=5; i>=0; i--) { let v = document.getElementById('a' + i).value; if(v!=="") uStr += v; }
+        for(let i=5; i>=0; i--) { let v = document.getElementById('a'+i).value; if(v!=="") uStr += v; }
         if(uStr === "") return;
         let uNum = parseInt(uStr), isRight = (uNum === ans);
-        let point = (curD * 2) * (rowCount - 1);
+        let point = (currentOp === 'add') ? (curD1||3)*rowCount : (curD1+curD2)*2;
         clearInterval(timer);
 
         totalScore += isRight ? point : -point;
-        
-        // อัปเดตการแสดงผลคะแนนและสี
         const scoreEl = document.getElementById('score-display');
         scoreEl.innerText = totalScore;
-        if(totalScore < 0) {
-            scoreEl.className = "score-red";
-        } else {
-            scoreEl.className = "score-normal";
-        }
+        scoreEl.className = totalScore < 0 ? "score-red" : "";
 
-        document.getElementById('result-text').innerHTML = (isRight ? `<span style='color:green'>ถูกต้อง! +${point}</span>` : `<span style='color:red'>ผิดครับ -${point}</span>`) + `<div class="thai-read">คำตอบคือ: ${thaiRead(ans)}</div>`;
-        document.getElementById('level-tag').innerText = `🏆 Level ${Math.max(0, Math.floor(totalScore/100))}`;
+        document.getElementById('result-text').innerHTML = (isRight ? `<span style='color:green'>ถูกต้อง! +${point}</span>` : `<span style='color:red'>ผิดครับ -${point}</span>`) + `<div class="thai-read">คำอ่าน: ${thaiRead(ans)}</div>`;
         
         addHistory(isRight, uNum);
         document.getElementById('main-btn').innerText = "🎲 ข้อต่อไป";
-        document.getElementById('main-btn').onclick = () => selectMode(selectedMode);
+        document.getElementById('main-btn').onclick = () => startGame();
     }
 
-    function addHistory(isRight, uN) {
+    function thaiRead(n) {
+        if(n===0) return "ศูนย์";
+        const u = ["","สิบ","ร้อย","พัน","หมื่น","แสน","ล้าน"], d = ["ศูนย์","หนึ่ง","สอง","สาม","สี่","ห้า","หก","เจ็ด","แปด","เก้า"];
+        let s = n.toString(), res = "";
+        for(let i=0; i<s.length; i++) {
+            let v = parseInt(s[i]), p = s.length - i - 1;
+            if(v!==0) {
+                if(p===1 && v===1) res += ""; else if(p===1 && v===2) res += "ยี่";
+                else if(p===0 && v===1 && s.length>1) res += "เอ็ด"; else res += d[v];
+                res += u[p];
+            }
+        }
+        return res;
+    }
+
+    function addHistory(isR, uN) {
         const list = document.getElementById('log-list');
-        let taskText = nValues.join(' + ') + ` = ${ans}`;
-        hList.unshift({ t: taskText, u: uN, ok: isRight });
+        let txt = nValues.join(currentOp === 'add' ? '+' : 'x') + ` = ${ans}`;
+        hList.unshift({ t: txt, u: uN, ok: isR });
         if(hList.length > 10) hList.pop();
         list.innerHTML = "";
         hList.forEach(i => {
-            const d = document.createElement('div');
-            d.className = `history-item ${i.ok ? 'item-correct' : 'item-wrong'}`;
-            d.innerHTML = `<span>${i.t.substring(0,25)}...</span><span>ตอบ: ${i.u} ${i.ok ? '✅':'❌'}</span>`;
-            list.appendChild(d);
+            const div = document.createElement('div');
+            div.className = `history-item ${i.ok ? 'item-correct' : 'item-wrong'}`;
+            div.innerHTML = `<span>${i.t.substring(0,25)}</span><span>ตอบ: ${i.u} ${i.ok ? '✅':'❌'}</span>`;
+            list.appendChild(div);
         });
     }
 
-    window.onload = () => startGame(1);
+    window.onload = () => setOp('add');
 </script>
 </body>
 </html>
