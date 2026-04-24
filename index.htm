@@ -7,8 +7,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="https://flaticon.com">
 
-    <title>เกมคณิตสายตึงของ ธนพงษ์ เผ่าเพ็ง v2.0.0</title>
+    <title>เกมคณิตสายตึงของ ธนพงษ์ เผ่าเพ็ง v2.1.0</title>
     <link href="https://googleapis.com" rel="stylesheet">
+    <script src="https://jsdelivr.net"></script>
     
     <style>
         :root { --primary: #3498db; --success: #2ecc71; --error: #e74c3c; --carry: #fffde7; --level-color: #9b59b6; --gold: #f1c40f; }
@@ -18,7 +19,9 @@
         .main-title { font-size: 22px; font-weight: bold; color: #2c3e50; margin: 5px 0 0 0; }
         .sub-title { font-size: 14px; color: var(--primary); font-weight: bold; margin-bottom: 10px; display: block; }
         
-        /* สลับโหมด บวก/คูณ */
+        /* Level Badge */
+        .level-badge { display: inline-block; background: var(--level-color); color: white; padding: 4px 18px; border-radius: 20px; font-weight: bold; margin-bottom: 15px; font-size: 14px; box-shadow: 0 3px 0 #8e44ad; }
+
         .op-switch { display: flex; gap: 5px; margin-bottom: 15px; background: #eee; padding: 5px; border-radius: 15px; }
         .btn-op { flex: 1; padding: 10px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; transition: 0.3s; }
         .btn-op.active { background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); color: var(--primary); }
@@ -32,7 +35,6 @@
         .score-red { color: var(--error) !important; }
 
         .math-table { display: grid; grid-template-columns: 60px 1fr; gap: 4px; align-items: center; margin-bottom: 15px; max-height: 40vh; overflow-y: auto; padding: 10px; border: 1px solid #eee; border-radius: 15px; }
-        .row-label { font-weight: bold; color: #bbb; font-size: 11px; text-align: left; }
         .digit-group { display: grid; grid-template-columns: repeat(6, 1fr); gap: 3px; justify-items: end; }
         
         input { width: 100%; max-width: 44px; height: 50px; text-align: center; font-size: 22px; font-weight: bold; border: 2px solid #eee; border-radius: 10px; outline: none; box-sizing: border-box; }
@@ -42,9 +44,12 @@
         .answer-row input { background-color: #f1fbf3; border-color: var(--success); }
 
         .btn-check { width: 100%; padding: 18px; background: var(--success); color: white; border: none; border-radius: 18px; font-size: 22px; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 5px 0 #27ae60; }
-        .thai-read { font-size: 15px; color: #555; background: #fff9c4; padding: 8px; border-radius: 12px; margin-top: 5px; }
         
-        /* ประวัติแยกสี */
+        /* Popup Level Up */
+        #level-popup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; }
+        .popup-content { background: white; padding: 30px; border-radius: 20px; text-align: center; max-width: 80%; animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes pop { from { transform: scale(0); } to { transform: scale(1); } }
+
         .history-log { margin-top: 20px; border-top: 1px dashed #ddd; padding-top: 15px; text-align: left; }
         .history-item { padding: 8px 12px; border-radius: 10px; margin-bottom: 6px; border-left: 8px solid #ccc; display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; }
         .item-correct { border-color: var(--success); background: #e8f5e9; color: #2e7d32; }
@@ -53,10 +58,20 @@
 </head>
 <body>
 
+<div id="level-popup">
+    <div class="popup-content">
+        <h2 style="color:var(--level-color); margin:0;">🎉 LEVEL UP!</h2>
+        <p id="pop-desc" style="font-size:18px; margin:15px 0; color:#555;"></p>
+        <button style="padding:10px 30px; background:var(--success); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;" onclick="document.getElementById('level-popup').style.display='none'">ลุยต่อ!</button>
+    </div>
+</div>
+
 <div class="app-card">
     <h1 class="main-title">เกมคณิตศาสตร์สายตึง</h1>
     <span class="sub-title">ของ ธนพงษ์ เผ่าเพ็ง</span>
     
+    <div class="level-badge" id="level-tag">🏆 Level 0</div>
+
     <div class="op-switch">
         <button id="op-add" class="btn-op active" onclick="setOp('add')">➕ การบวก</button>
         <button id="op-mul" class="btn-op" onclick="setOp('mul')">✖️ การคูณ</button>
@@ -65,9 +80,9 @@
     <div id="mode-selectors" class="difficulty-zones"></div>
 
     <div id="row-ctrl" class="stats" style="background:#fff; border: 2px dashed #ddd;">
-        <button style="border:none; background:var(--error); color:white; width:30px; border-radius:5px;" onclick="changeRows(-1)">-</button>
-        <span>บวกกัน <span id="row-num">2</span> จำนวน</span>
-        <button style="border:none; background:var(--success); color:white; width:30px; border-radius:5px;" onclick="changeRows(1)">+</button>
+        <button style="border:none; background:var(--error); color:white; width:30px; border-radius:5px; cursor:pointer;" onclick="changeRows(-1)">-</button>
+        <span style="font-size:14px;">บวกกัน <span id="row-num">2</span> จำนวน</span>
+        <button style="border:none; background:var(--success); color:white; width:30px; border-radius:5px; cursor:pointer;" onclick="changeRows(1)">+</button>
     </div>
 
     <div class="stats">
@@ -76,14 +91,14 @@
     </div>
 
     <div class="math-table" id="math-grid">
-        <div class="row-label">ตัวทด</div>
+        <div style="font-weight:bold; color:#bbb; font-size:11px;">ตัวทด</div>
         <div class="digit-group carry-row">
             <input type="number" id="c5" class="num-in"><input type="number" id="c4" class="num-in"><input type="number" id="c3" class="num-in"><input type="number" id="c2" class="num-in"><input type="number" id="c1" class="num-in">
             <div style="width: 100%; max-width: 44px; height: 35px; visibility: hidden;"></div> 
         </div>
         <div id="quest-rows-container" style="display: contents;"></div>
         <div class="answer-row">
-            <div class="row-label">คำตอบ</div>
+            <div style="font-weight:bold; color:#bbb; font-size:11px;">คำตอบ</div>
             <div class="digit-group">
                 <input type="number" id="a5" class="num-in"><input type="number" id="a4" class="num-in"><input type="number" id="a3" class="num-in"><input type="number" id="a2" class="num-in"><input type="number" id="a1" class="num-in"><input type="number" id="a0" class="num-in">
             </div>
@@ -92,24 +107,19 @@
 
     <div id="result-text" style="min-height:40px; font-weight:bold; margin:5px;"></div>
     <button class="btn-check" id="main-btn" onclick="checkAnswer()">🎯 ตรวจคำตอบ</button>
-
-    <div class="history-log">
-        <strong>🕒 ประวัติ 10 ข้อล่าสุด:</strong>
-        <div id="log-list"></div>
-    </div>
+    <div class="history-log"><strong>🕒 ประวัติ 10 ข้อล่าสุด:</strong><div id="log-list"></div></div>
 </div>
 
 <script>
     let currentOp = 'add', nValues = [], ans, totalScore = 0, sec = 0, timer, rowCount = 2, hList = [];
-    let curD1 = 1, curD2 = 1; // สำหรับตัวตั้งและตัวคูณ
+    let curD1 = 1, curD2 = 1, lastLevelAwarded = 0;
 
     function setOp(op) {
         currentOp = op;
         document.getElementById('op-add').classList.toggle('active', op === 'add');
         document.getElementById('op-mul').classList.toggle('active', op === 'mul');
         document.getElementById('row-ctrl').style.display = (op === 'add') ? 'flex' : 'none';
-        renderModes();
-        startGame();
+        renderModes(); startGame();
     }
 
     function renderModes() {
@@ -119,7 +129,7 @@
             for(let i=1; i<=5; i++) container.innerHTML += `<button class="btn-mode" id="m${i}" onclick="startWithD(${i})">${i} หลัก</button>`;
             container.innerHTML += `<button class="btn-mode" id="m0" onclick="startWithD(0)" style="color:#f39c12">🔀 สุ่ม</button>`;
         } else {
-            const mSet = [[2,1],[3,1],[2,2],[3,2],[4,1],[4,2]];
+            const mSet = [[2,1],[3,1],[4,1],[2,2],[3,2]];
             mSet.forEach((s, idx) => {
                 container.innerHTML += `<button class="btn-mode" id="mul${idx}" onclick="startMul(${s[0]}, ${s[1]}, ${idx})">${s[0]}x${s[1]}</button>`;
             });
@@ -130,7 +140,7 @@
     function startMul(d1, d2, idx) { 
         curD1 = d1; curD2 = d2; 
         document.querySelectorAll('.btn-mode').forEach(b => b.classList.remove('active'));
-        document.getElementById('mul'+idx).classList.add('active');
+        if(document.getElementById('mul'+idx)) document.getElementById('mul'+idx).classList.add('active');
         startGame(); 
     }
 
@@ -140,33 +150,29 @@
         clearInterval(timer); sec = 0; document.getElementById('time-val').innerText = "0";
         document.getElementById('result-text').innerHTML = "";
         const btn = document.getElementById('main-btn'); btn.innerText = "🎯 ตรวจคำตอบ"; btn.onclick = checkAnswer;
-        
         if(currentOp === 'add') {
             document.querySelectorAll('.btn-mode').forEach(b => b.classList.remove('active'));
             if(document.getElementById('m'+curD1)) document.getElementById('m'+curD1).classList.add('active');
         }
-
         const container = document.getElementById('quest-rows-container');
         container.innerHTML = ""; nValues = []; ans = (currentOp === 'add') ? 0 : 1;
 
         if (currentOp === 'add') {
             let d = curD1 === 0 ? Math.floor(Math.random()*5)+1 : curD1;
-            let min = Math.pow(10, d-1), max = Math.pow(10, d)-1;
             for(let r=1; r<=rowCount; r++) {
-                let v = Math.floor(Math.random()*(max-min+1)+min);
+                let v = Math.floor(Math.random()*(Math.pow(10, d)-Math.pow(10, d-1)))+Math.pow(10, d-1);
                 nValues.push(v); ans += v;
-                container.innerHTML += `<div class="row-label">ตัวเลข ${r}</div><div class="digit-group" id="row-${r}"></div>`;
+                container.innerHTML += `<div style="font-weight:bold; color:#bbb; font-size:11px;">#${r}</div><div class="digit-group" id="row-${r}"></div>`;
                 renderRowDigits(`row-${r}`, v);
             }
         } else {
             let v1 = Math.floor(Math.random()*(Math.pow(10, curD1)-Math.pow(10, curD1-1)))+Math.pow(10, curD1-1);
             let v2 = Math.floor(Math.random()*(Math.pow(10, curD2)-Math.pow(10, curD2-1)))+Math.pow(10, curD2-1);
             nValues = [v1, v2]; ans = v1 * v2;
-            container.innerHTML += `<div class="row-label">ตัวตั้ง</div><div class="digit-group" id="row-1"></div>`;
-            container.innerHTML += `<div class="row-label">ตัวคูณ</div><div class="digit-group" id="row-2"></div>`;
+            container.innerHTML += `<div style="font-weight:bold; color:#bbb; font-size:11px;">ตั้ง</div><div class="digit-group" id="row-1"></div>`;
+            container.innerHTML += `<div style="font-weight:bold; color:#bbb; font-size:11px;">คูณ</div><div class="digit-group" id="row-2"></div>`;
             renderRowDigits(`row-1`, v1); renderRowDigits(`row-2`, v2);
         }
-
         document.querySelectorAll('.num-in').forEach(el => el.value = "");
         setupInputLogic();
         timer = setInterval(() => { sec++; document.getElementById('time-val').innerText = sec; }, 1000);
@@ -202,30 +208,29 @@
         clearInterval(timer);
 
         totalScore += isRight ? point : -point;
-        const scoreEl = document.getElementById('score-display');
-        scoreEl.innerText = totalScore;
-        scoreEl.className = totalScore < 0 ? "score-red" : "";
+        document.getElementById('score-display').innerText = totalScore;
+        document.getElementById('score-display').className = totalScore < 0 ? "score-red" : "";
+        document.getElementById('level-tag').innerText = `🏆 Level ${Math.max(0, Math.floor(totalScore/100))}`;
 
-        document.getElementById('result-text').innerHTML = (isRight ? `<span style='color:green'>ถูกต้อง! +${point}</span>` : `<span style='color:red'>ผิดครับ -${point}</span>`) + `<div class="thai-read">คำอ่าน: ${thaiRead(ans)}</div>`;
-        
+        if(isRight) {
+            document.getElementById('result-text').innerHTML = `<span style='color:green'>ถูกต้อง! +${point}</span>`;
+            checkLevelUp();
+        } else {
+            document.getElementById('result-text').innerHTML = `<span style='color:red'>ผิดครับ -${point}</span>`;
+        }
+
         addHistory(isRight, uNum);
         document.getElementById('main-btn').innerText = "🎲 ข้อต่อไป";
         document.getElementById('main-btn').onclick = () => startGame();
     }
 
-    function thaiRead(n) {
-        if(n===0) return "ศูนย์";
-        const u = ["","สิบ","ร้อย","พัน","หมื่น","แสน","ล้าน"], d = ["ศูนย์","หนึ่ง","สอง","สาม","สี่","ห้า","หก","เจ็ด","แปด","เก้า"];
-        let s = n.toString(), res = "";
-        for(let i=0; i<s.length; i++) {
-            let v = parseInt(s[i]), p = s.length - i - 1;
-            if(v!==0) {
-                if(p===1 && v===1) res += ""; else if(p===1 && v===2) res += "ยี่";
-                else if(p===0 && v===1 && s.length>1) res += "เอ็ด"; else res += d[v];
-                res += u[p];
-            }
+    function checkLevelUp() {
+        if (totalScore > 0 && Math.floor(totalScore / 100) > Math.floor(lastLevelAwarded / 100)) {
+            lastLevelAwarded = totalScore;
+            document.getElementById('pop-desc').innerText = `ยินดีด้วยคุณธนพงษ์! คะแนนรวม ${totalScore}\nคุณผ่านเข้าสู่ Level ${Math.floor(totalScore / 100)} แล้ว!`;
+            document.getElementById('level-popup').style.display = 'flex';
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
         }
-        return res;
     }
 
     function addHistory(isR, uN) {
@@ -235,10 +240,10 @@
         if(hList.length > 10) hList.pop();
         list.innerHTML = "";
         hList.forEach(i => {
-            const div = document.createElement('div');
-            div.className = `history-item ${i.ok ? 'item-correct' : 'item-wrong'}`;
-            div.innerHTML = `<span>${i.t.substring(0,25)}</span><span>ตอบ: ${i.u} ${i.ok ? '✅':'❌'}</span>`;
-            list.appendChild(div);
+            const d = document.createElement('div');
+            d.className = `history-item ${i.ok ? 'item-correct' : 'item-wrong'}`;
+            d.innerHTML = `<span>${i.t.substring(0,25)}</span><span>ตอบ: ${i.u} ${i.ok ? '✅':'❌'}</span>`;
+            list.appendChild(d);
         });
     }
 
