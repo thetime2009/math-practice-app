@@ -4,23 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="https://flaticon.com">
 
-    <title>เกมคณิตสายตึง v2.4.1</title>
+    <title>เกมคณิตสายตึง v2.5.0</title>
     <link href="https://googleapis.com" rel="stylesheet">
     <script src="https://jsdelivr.net"></script>
     
     <style>
-        :root { --primary: #3498db; --success: #2ecc71; --error: #e74c3c; --carry: #fffde7; --level-color: #9b59b6; --gold: #f1c40f; }
+        :root { --primary: #3498db; --success: #2ecc71; --error: #e74c3c; --carry: #fffde7; --level-color: #9b59b6; --gold: #f1c40f; --next: #e67e22; }
         body { font-family: 'Sarabun', sans-serif; background-color: #f0f4f8; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
         
         .app-card { background: white; padding: 15px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 480px; position: relative; margin-bottom: 15px; }
         .main-title { font-size: 22px; font-weight: bold; color: #2c3e50; margin: 5px 0 0 0; }
         .sub-title { font-size: 14px; color: var(--primary); font-weight: bold; margin-bottom: 10px; display: block; }
         .level-badge { display: inline-block; background: var(--level-color); color: white; padding: 4px 18px; border-radius: 20px; font-weight: bold; margin-bottom: 10px; font-size: 14px; box-shadow: 0 3px 0 #8e44ad; }
-
-        .dice-area { display: none; background: #fff; padding: 10px; border-radius: 15px; border: 3px solid var(--primary); margin-bottom: 10px; justify-content: center; align-items: center; gap: 15px; }
-        .dice-val { font-size: 35px; font-weight: bold; color: var(--primary); }
 
         .difficulty-zones { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-bottom: 10px; }
         .btn-mode { padding: 10px 2px; border: 2px solid var(--primary); background: white; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 12px; }
@@ -36,17 +34,21 @@
         .answer-row { border-top: 3px solid #444; padding-top: 8px; margin-top: 5px; grid-column: 1 / span 2; display: grid; grid-template-columns: 55px 1fr; gap: 4px; align-items: center; }
         .answer-row input { background-color: #f1fbf3; border-color: var(--success); }
 
-        .btn-check { width: 100%; padding: 16px; background: var(--success); color: white; border: none; border-radius: 18px; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #27ae60; }
-        .btn-dice { background: var(--primary); box-shadow: 0 4px 0 #2980b9; flex: 1; }
-        .btn-dice:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; }
+        .btn-check { width: 100%; padding: 16px; background: var(--success); color: white; border: none; border-radius: 18px; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #27ae60; transition: 0.2s; }
+        .btn-dice { background: var(--primary); box-shadow: 0 4px 0 #2980b9; }
+        .btn-next { background: var(--next); box-shadow: 0 4px 0 #d35400; }
 
-        #game-popup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; }
-        .popup-box { background: white; padding: 25px; border-radius: 20px; text-align: center; max-width: 80%; }
+        .thai-read { font-size: 15px; color: #555; background: #fff9c4; padding: 8px; border-radius: 12px; margin-top: 8px; font-weight: normal; line-height: 1.4; border: 1px solid #f1c40f; }
 
+        /* Popup */
+        #game-popup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center; }
+        .popup-box { background: white; padding: 25px; border-radius: 20px; text-align: center; max-width: 80%; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+
+        /* Board */
         .board-container { width: 100%; max-width: 480px; background: #fff; padding: 10px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         .board { display: grid; grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(10, 1fr); gap: 2px; background: #ccc; border: 2px solid #333; position: relative; }
         .cell { aspect-ratio: 1; background: white; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; color: #aaa; position: relative; }
-        .token { width: 8%; height: 8%; background: #e74c3c; border-radius: 50%; position: absolute; z-index: 100; border: 2px solid white; transition: all 0.5s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.4); pointer-events: none; }
+        .token { width: 8%; height: 8%; background: #e74c3c; border-radius: 50%; position: absolute; z-index: 100; border: 2px solid white; transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 2px 4px rgba(0,0,0,0.4); pointer-events: none; }
         .ladder-ico { color: #f39c12; font-size: 12px; position: absolute; bottom: 0; right: 0; }
         .snake-ico { color: #2ecc71; font-size: 12px; position: absolute; top: 0; left: 0; }
         
@@ -61,11 +63,13 @@
     <div class="popup-box">
         <h2 id="pop-title" style="margin:0;"></h2>
         <p id="pop-msg" style="font-size:18px; margin:15px 0; color:#555;"></p>
-        <button style="padding:10px 30px; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:bold;" onclick="closePop()">ตกลง</button>
+        <button style="padding:10px 30px; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;" onclick="closePop()">ตกลง</button>
     </div>
 </div>
 
 <div class="app-card">
+    <button style="background:#2c3e50; color:white; padding:8px; border-radius:10px; margin-bottom:10px; font-size:11px; border:none; width:100%; cursor:pointer;" onclick="alert('iOS: แชร์ > เพิ่มลงหน้าจอโฮม\nAndroid: 3จุด > ติดตั้งแอป')">📲 วิธีติดตั้งแอปไว้บนมือถือ</button>
+    <div class="version-tag">v2.5.0</div>
     <h1 class="main-title">เกมคณิตศาสตร์สายตึง</h1>
     <span class="sub-title">ของ ธนพงษ์ เผ่าเพ็ง</span>
     <div class="level-badge" id="level-tag">🏆 Level 1</div>
@@ -80,9 +84,9 @@
     </div>
 
     <div id="row-ctrl" class="stats" style="background:#fff; border: 2px dashed #ddd; padding: 5px;">
-        <button style="border:none; background:var(--error); color:white; width:25px; border-radius:5px;" onclick="changeRows(-1)">-</button>
+        <button style="border:none; background:var(--error); color:white; width:25px; border-radius:5px; cursor:pointer;" onclick="changeRows(-1)">-</button>
         <span style="font-size:12px;">บวกกัน <span id="row-num">2</span> จำนวน</span>
-        <button style="border:none; background:var(--success); color:white; width:25px; border-radius:5px;" onclick="changeRows(1)">+</button>
+        <button style="border:none; background:var(--success); color:white; width:25px; border-radius:5px; cursor:pointer;" onclick="changeRows(1)">+</button>
     </div>
 
     <div class="stats">
@@ -105,15 +109,10 @@
         </div>
     </div>
 
-    <div id="result-text" style="min-height:30px; font-weight:bold; font-size:13px; margin:5px;"></div>
+    <div id="result-area" style="min-height:30px; margin-bottom:5px;"></div>
     
-    <div id="action-area">
+    <div id="btn-box">
         <button class="btn-check" id="main-btn" onclick="checkAnswer()">🎯 ตรวจคำตอบ</button>
-    </div>
-
-    <div id="dice-section" class="dice-area">
-        <span class="dice-val" id="dice-result">?</span>
-        <button class="btn-check btn-dice" id="roll-btn" onclick="rollDice()">🎲 ทอยลูกเต๋าเดินหมาก</button>
     </div>
 </div>
 
@@ -135,17 +134,31 @@
     const ladders = { 3:21, 8:30, 19:38, 27:83, 40:59, 62:81, 71:90 };
     const snakes = { 16:6, 32:10, 47:25, 61:18, 87:24, 94:74, 98:77 };
 
+    function thaiRead(n) {
+        if(n===0) return "ศูนย์";
+        const u = ["","สิบ","ร้อย","พัน","หมื่น","แสน","ล้าน"], d = ["ศูนย์","หนึ่ง","สอง","สาม","สี่","ห้า","หก","เจ็ด","แปด","เก้า"];
+        let s = n.toString(), res = "";
+        for(let i=0; i<s.length; i++) {
+            let v = parseInt(s[i]), p = s.length - i - 1;
+            if(v!==0) {
+                if(p===1 && v===1) res += ""; else if(p===1 && v===2) res += "ยี่";
+                else if(p===0 && v===1 && s.length>1) res += "เอ็ด"; else res += d[v];
+                res += u[p];
+            }
+        }
+        return res;
+    }
+
     function startGame() {
-        clearInterval(timer); 
-        sec = 0; 
+        clearInterval(timer); sec = 0; 
         document.getElementById('time-val').innerText = "0";
-        document.getElementById('result-text').innerHTML = "";
+        document.getElementById('result-area').innerHTML = "";
         
-        // รีเซ็ต UI ปุ่ม
-        document.getElementById('dice-section').style.display = 'none';
-        document.getElementById('action-area').style.display = 'block';
-        document.getElementById('roll-btn').disabled = false;
-        document.getElementById('dice-result').innerText = "?";
+        const btn = document.getElementById('main-btn');
+        btn.innerText = "🎯 ตรวจคำตอบ";
+        btn.className = "btn-check";
+        btn.onclick = checkAnswer;
+        btn.disabled = false;
         
         document.querySelectorAll('.btn-mode').forEach(b => b.classList.remove('active'));
         if(document.getElementById('m'+curD)) document.getElementById('m'+curD).classList.add('active');
@@ -169,8 +182,7 @@
         const row = document.getElementById(id);
         let arr = num.toString().split('').reverse();
         for(let i=5; i>=0; i--) {
-            let opac = (arr[i] !== undefined) ? 1 : 0;
-            row.innerHTML += `<input type="text" value="${arr[i]||''}" readonly style="opacity:${opac}; border:none; background:transparent;">`;
+            row.innerHTML += `<input type="text" value="${arr[i]||''}" readonly style="opacity:${(arr[i]!==undefined)?1:0}; border:none; background:transparent;">`;
         }
     }
 
@@ -193,52 +205,65 @@
         let point = (curD||3) * 2 * (rowCount-1);
         clearInterval(timer);
 
+        let resHTML = isRight ? `<div style='color:green; font-weight:bold;'>ถูกต้อง! +${point} (ทอยลูกเต๋าได้เลย)</div>` : `<div style='color:red; font-weight:bold;'>ผิดครับ -${point}</div>`;
+        resHTML += `<div class="thai-read">เฉลย: ${ans} <br>คำอ่าน: ${thaiRead(ans)}</div>`;
+        document.getElementById('result-area').innerHTML = resHTML;
+
+        totalScore += isRight ? point : -point;
+        if(totalScore < 0) totalScore = 0;
+        document.getElementById('score-display').innerText = totalScore;
+        document.getElementById('score-display').className = totalScore < 0 ? "score-red" : "";
+
+        const btn = document.getElementById('main-btn');
         if (isRight) {
-            totalScore += point;
-            document.getElementById('result-text').innerHTML = `<span style='color:green'>ถูกต้อง! +${point} (ทอยลูกเต๋าได้เลย)</span>`;
-            document.getElementById('action-area').style.display = 'none';
-            document.getElementById('dice-section').style.display = 'flex';
+            btn.innerText = "🎲 ทอยลูกเต๋าเดินหมาก";
+            btn.className = "btn-check btn-dice";
+            btn.onclick = rollDice;
         } else {
-            totalScore -= point;
-            document.getElementById('result-text').innerHTML = `<span style='color:red'>ผิดครับ -${point}</span>`;
-            setTimeout(startGame, 1500);
+            btn.innerText = "🎲 สุ่มเล่นต่อ";
+            btn.className = "btn-check btn-next";
+            btn.onclick = startGame;
         }
-        updateScoreUI();
         addHistory(isRight, uNum);
     }
 
     function rollDice() {
-        document.getElementById('roll-btn').disabled = true;
+        const btn = document.getElementById('main-btn');
+        btn.disabled = true;
         let roll = Math.floor(Math.random() * 6) + 1;
-        document.getElementById('dice-result').innerText = roll;
         
         boardSteps += roll;
         moveToken();
         
-        setTimeout(() => checkBoardEvents(), 800);
+        setTimeout(() => checkBoardEvents(), 1000);
     }
 
     function checkBoardEvents() {
         let pos = boardSteps % 100;
         if (ladders[pos]) {
-            showPop("🪜 เยี่ยมเลย!", `คุณได้ขึ้นบันไดลัดไปช่อง ${boardSteps + (ladders[pos] - pos) + 1}`);
+            showPop("🪜 เยี่ยมเลย!", `พุ่งขึ้นบันไดไปช่องที่ ${boardSteps + (ladders[pos] - pos) + 1}`);
             boardSteps += (ladders[pos] - pos);
+            setTimeout(moveToken, 500);
         } else if (snakes[pos]) {
-            showPop("🐍 โอ๊ะโอ!", `คุณถูกงูกัด ไหลลงมาที่ช่อง ${boardSteps - (pos - snakes[pos]) + 1}`);
+            showPop("🐍 โอ๊ะโอ!", `ถูกงูกัด ไหลลงมาช่องที่ ${boardSteps - (pos - snakes[pos]) + 1}`);
             boardSteps -= (pos - snakes[pos]);
+            setTimeout(moveToken, 500);
         }
-        
-        // เช็ค Level Up
-        if (Math.floor(boardSteps/100) > Math.floor((boardSteps - roll_temp)/100)) { } // Logic เช็คข้ามหลักร้อย
-        
-        updateBoardUI();
-        setTimeout(startGame, 1500);
-    }
 
-    function updateScoreUI() {
-        const sc = document.getElementById('score-display');
-        sc.innerText = totalScore;
-        sc.className = totalScore < 0 ? "score-red" : "";
+        // เช็ค Level Up
+        let currentLevel = Math.floor(boardSteps / 100) + 1;
+        let displayedLevel = parseInt(document.getElementById('level-tag').innerText.replace('🏆 Level ', ''));
+        if (currentLevel > displayedLevel) {
+            showPop("🏆 Level Up!", `ยอดเยี่ยม! คุณเข้าสู่ Level ${currentLevel}`);
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            updateBoardUI();
+        }
+
+        const btn = document.getElementById('main-btn');
+        btn.innerText = "🎲 สุ่มเล่นต่อ";
+        btn.className = "btn-check btn-next";
+        btn.onclick = startGame;
+        btn.disabled = false;
     }
 
     function updateBoardUI() {
@@ -271,15 +296,15 @@
         let pos = boardSteps % 100;
         const target = document.getElementById(`cell-${pos}`);
         const token = document.getElementById('player-token');
-        if(target) {
+        if(target && token) {
             token.style.left = target.offsetLeft + (target.offsetWidth * 0.1) + 'px';
             token.style.top = target.offsetTop + (target.offsetHeight * 0.1) + 'px';
         }
     }
 
-    function showPop(title, msg) {
-        document.getElementById('pop-title').innerText = title;
-        document.getElementById('pop-msg').innerText = msg;
+    function showPop(t, m) {
+        document.getElementById('pop-title').innerText = t;
+        document.getElementById('pop-msg').innerText = m;
         document.getElementById('game-popup').style.display = 'flex';
     }
     function closePop() { document.getElementById('game-popup').style.display = 'none'; }
